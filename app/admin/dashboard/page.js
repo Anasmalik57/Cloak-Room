@@ -225,7 +225,7 @@ export default function AdminDashboard() {
                 
                 {filteredJoined.length > 0 ? (
                   filteredJoined.map((person, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 items-center py-3 hover:bg-gray-50 rounded-lg px-2 transition-colors">
+                    <div onClick={()=> router.push("/admin/checkin-reports")} key={index} className="grid cursor-pointer grid-cols-3 gap-4 items-center py-3 hover:bg-gray-50 rounded-lg px-2 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
                           {person.avatar}
