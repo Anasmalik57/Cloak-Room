@@ -67,6 +67,7 @@ export default function CheckInListPage() {
   };
 
   const filteredCustomers = data
+    .filter((customer) => customer.status === 'checkedIn')
     .filter((customer) => {
       const q = searchQuery.toLowerCase();
       return (
