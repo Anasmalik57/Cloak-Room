@@ -1,9 +1,10 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Users, Clock, Package, LogOut, UserPlus, UserMinus, FileText, Search, Bell, Moon, HelpCircle, Calendar, MoreVertical } from 'lucide-react';
+import { Users, Clock, Package, UserPlus, Search, Bell, Moon, HelpCircle, Calendar, MoreVertical } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { API_BASE } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
-const API_BASE = "http://localhost:5000/api";
 
 const timeAgo = (dateString) => {
   const now = new Date();
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+  const router = useRouter()
 
   useEffect(() => {
     const now = new Date();
@@ -300,7 +302,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-gray-800">Recent Check Outs ({filteredCheckouts.length})</h2>
-                <button className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors flex items-center gap-1">
+                <button onClick={()=> router.push("/admin/checkout-reports")} className="px-4 py-2 cursor-pointer bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors flex items-center gap-1">
                   See all
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -336,7 +338,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-gray-800">Recent Transactions ({filteredTransactions.length})</h2>
-                <button className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors flex items-center gap-1">
+                <button onClick={()=> router.push("/admin/checkin-reports")} className="px-4 py-2 cursor-pointer bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition-colors flex items-center gap-1">
                   See all
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
