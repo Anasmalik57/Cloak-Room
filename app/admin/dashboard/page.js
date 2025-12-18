@@ -3,43 +3,112 @@ import React, { useState, useEffect } from 'react';
 import { Users, Clock, Package, LogOut, UserPlus, UserMinus, FileText, Search, Bell, Moon, HelpCircle, Calendar, MoreVertical } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
-const statCards = [
-  { title: 'Total Customers', value: '67', icon: Users, bgColor: 'bg-blue-500', iconColor: 'text-white' },
-  { title: 'Check In Today', value: '32', icon: UserPlus, bgColor: 'bg-green-500', iconColor: 'text-white' },
-  { title: 'Ready for Check Out', value: '5', icon: Clock, bgColor: 'bg-yellow-500', iconColor: 'text-white' },
-  { title: 'Total Revenue', value: '₹35,000', icon: Package, bgColor: 'bg-purple-500', iconColor: 'text-white' },
-];
+const API_BASE = "http://localhost:5000/api";
 
-const recentJoined = [
-  { name: 'Nazar Becks', mobile: '+91 98765 43210', status: 'Checked In', avatar: 'NB', time: '2 mins ago' },
-  { name: 'John Darwin', mobile: '+91 98765 43211', status: 'Checked In', avatar: 'JD', time: '10 mins ago' },
-  { name: 'Priya Singh', mobile: '+91 98765 43212', status: 'Checked In', avatar: 'PS', time: '25 mins ago' },
-];
-
-const recentCheckouts = [
-  { name: 'Payal Sharma', amount: '₹1,200', date: 'Dec 17, 2025', avatar: 'PS' },
-  { name: 'Rahul Kumar', amount: '₹850', date: 'Dec 17, 2025', avatar: 'RK' },
-  { name: 'Neha Verma', amount: '₹950', date: 'Dec 16, 2025', avatar: 'NV' },
-  { name: 'Amit Patel', amount: '₹1,100', date: 'Dec 16, 2025', avatar: 'AP' },
-];
-
-const recentTransactions = [
-  { name: 'Payal Sharma', amount: '₹600', type: 'Check Out' },
-  { name: 'Rahul Kumar', amount: '₹540', type: 'Check Out' },
-  { name: 'Neha Verma', amount: '₹210', type: 'Check Out' },
-  { name: 'Amit Patel', amount: '₹230', type: 'Check Out' },
-  { name: 'Priya Singh', amount: '₹60', type: 'Check Out' },
-  { name: 'John Darwin', amount: '₹58', type: 'Check Out' },
-];
-
-const pieData = [
-  { name: 'Check Ins', value: 65, color: '#3B82F6' },
-  { name: 'Check Outs', value: 35, color: '#F59E0B' },
-];
+const timeAgo = (dateString) => {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diff = now.getTime() - past.getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} mins ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hours ago`;
+  return `${Math.floor(hours / 24)} days ago`;
+};
 
 export default function AdminDashboard() {
-  const [currentDate, setCurrentDate] = useState('');
+  const [checkins, setCheckins] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[now.getDay()];
+    const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    setCurrentDate(`${day}, ${date}`);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE}/checkins`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch checkins');
+        }
+        const data = await response.json();
+        setCheckins(data);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const checkedIn = checkins.filter(c => c.status === 'checkedIn');
+  const checkedOut = checkins.filter(c => c.status === 'checkedOut');
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const todayCheckIns = checkedIn.filter(c => {
+    const checkDate = new Date(c.checkInTime);
+    return checkDate >= today && checkDate < tomorrow;
+  }).length;
+
+  const totalRevenue = checkedOut.reduce((sum, c) => sum + (c.amount?.totalAmount || 0), 0);
+
+  const recentJoined = checkedIn
+    .sort((a, b) => new Date(b.checkInTime) - new Date(a.checkInTime))
+    .slice(0, 3)
+    .map(c => ({
+      name: c.passengerName,
+      mobile: `+91 ${c.passengerMobile}`,
+      status: 'Checked In',
+      avatar: c.passengerName.substring(0, 2).toUpperCase(),
+      time: timeAgo(c.checkInTime)
+    }));
+
+  const recentCheckouts = checkedOut
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .slice(0, 4)
+    .map(c => ({
+      name: c.passengerName,
+      amount: `₹${c.amount?.totalAmount || 0}`,
+      date: new Date(c.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      avatar: c.passengerName.substring(0, 2).toUpperCase()
+    }));
+
+  const recentTransactions = checkedOut
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .slice(0, 6)
+    .map(c => ({
+      name: c.passengerName,
+      amount: `₹${c.amount?.totalAmount || 0}`,
+      type: 'Check Out'
+    }));
+
+  const pieData = [
+    { name: 'Check Ins', value: checkedIn.length, color: '#3B82F6' },
+    { name: 'Check Outs', value: checkedOut.length, color: '#F59E0B' },
+  ];
+
+  const statCards = [
+    { title: 'Total Customers', value: checkins.length.toString(), icon: Users, bgColor: 'bg-blue-500', iconColor: 'text-white' },
+    { title: 'Check In Today', value: todayCheckIns.toString(), icon: UserPlus, bgColor: 'bg-green-500', iconColor: 'text-white' },
+    { title: 'Ready for Check Out', value: checkedIn.length.toString(), icon: Clock, bgColor: 'bg-yellow-500', iconColor: 'text-white' },
+    { title: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: Package, bgColor: 'bg-purple-500', iconColor: 'text-white' },
+  ];
 
   const filteredJoined = recentJoined.filter(person =>
     person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,15 +129,29 @@ export default function AdminDashboard() {
     item.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  useEffect(() => {
-    const now = new Date();
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const day = days[now.getDay()];
-    const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    setCurrentDate(`${day}, ${date}`);
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 items-center justify-center ml-64">
+        <p className="text-gray-600">Loading dashboard...</p>
+      </div>
+    );
+  }
 
-  const totalRevenue = recentTransactions.reduce((sum, tx) => sum + parseInt(tx.amount.replace('₹', '')), 0);
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 items-center justify-center ml-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -93,16 +176,6 @@ export default function AdminDashboard() {
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
               </div>
-              
-              {/* <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Moon className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <HelpCircle className="w-5 h-5 text-gray-600" />
-              </button> */}
               
               <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md cursor-pointer hover:shadow-lg transition-shadow">
                 AD
@@ -200,7 +273,7 @@ export default function AdminDashboard() {
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-gray-800">₹{totalRevenue}</p>
+                      <p className="text-2xl font-bold text-gray-800">₹{totalRevenue.toLocaleString()}</p>
                       <p className="text-sm text-gray-600">This Month</p>
                     </div>
                   </div>
@@ -280,7 +353,7 @@ export default function AdminDashboard() {
                     <div key={index} className="grid grid-cols-2 gap-4 items-center py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-linear-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                          {item.name.split(' ')[0][0]}{item.name.split(' ')[1]?.[0] || 'S'}
+                          {item.name.split(' ')[0][0]}{item.name.split(' ')[1]?.[0] || ''}
                         </div>
                         <span className="text-sm font-medium text-gray-700">{item.name}</span>
                       </div>
