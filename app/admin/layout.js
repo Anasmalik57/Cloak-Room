@@ -2,33 +2,35 @@
 import React from 'react';
 import Link from 'next/link';
 import { Users, UserPlus, UserMinus, FileText, LogOut, Clock, Package } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const navSections = [
   {
     title: 'Dashboard',
     items: [
-      { name: 'Dashboard', href: '/admin/dashboard', icon: Clock, active: true }
+      { name: 'Dashboard', href: '/admin/dashboard', icon: Clock }
     ]
   },
   {
     title: 'Customers',
     items: [
-      { name: 'Check in Customer', href: '/admin/checkinCustomer', icon: UserPlus, active: false },
-      { name: 'Check out Customers', href: '/admin/checkoutCustomer', icon: UserMinus, active: false }
+      { name: 'Check in Customer', href: '/admin/checkinCustomer', icon: UserPlus },
+      { name: 'Check out Customers', href: '/admin/checkoutCustomer', icon: UserMinus }
     ]
   },
   {
     title: 'Reports',
     items: [
-      { name: 'Check in Reports', href: '/admin/checkin-reports', icon: FileText, active: false },
-      { name: 'Check out Reports', href: '/admin/checkout-reports', icon: FileText, active: false }
+      { name: 'Check in Reports', href: '/admin/checkin-reports', icon: FileText },
+      { name: 'Check out Reports', href: '/admin/checkout-reports', icon: FileText }
     ]
   }
 ];
 
 export default function AdminSidebar({ children }) {
   const router = useRouter()
+  const pathname = usePathname();
+
   return (
     <>
       <div className="w-64 fixed top-0 left-0 bg-linear-to-br from-blue-600 via-blue-600 to-blue-500 text-white flex flex-col h-screen print:hidden shadow-xl">
@@ -57,7 +59,7 @@ export default function AdminSidebar({ children }) {
                   key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    item.active
+                    pathname === item.href
                       ? 'bg-white/20 backdrop-blur-sm text-white shadow-md scale-105'
                       : 'hover:bg-white/10 text-blue-100 hover:text-white hover:shadow-md hover:scale-[1.02]'
                   }`}

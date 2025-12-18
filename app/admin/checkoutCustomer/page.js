@@ -306,7 +306,8 @@ export default function CheckOutForm() {
       const updated = await response.json();
       console.log('Checkout updated successfully:', updated);
       alert("Check-out data updated successfully!");
-      router.push("/admin/checkout-reports")
+      // router.push("/admin/checkout-reports")
+      router.push(`/report/${updated.tokenNo}`)
 
       handleCancel();
     } catch (err) {

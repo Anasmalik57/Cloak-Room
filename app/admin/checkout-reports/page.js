@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Search, Edit2, Trash2 } from "lucide-react";
+import { Search, Edit2, Trash2, PrinterIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
 
@@ -76,6 +76,7 @@ export default function CheckOutListPage() {
         }));
         
         setData(mappedData);
+        console.log('Fetched checkouts:', mappedData);
       } catch (err) {
         console.error('Error fetching checkouts:', err);
         setError(err.message);
@@ -279,11 +280,16 @@ export default function CheckOutListPage() {
                 {/* Actions */}
                 <div className="flex justify-center gap-2">
                   {/* Edit */}
-                  <button
-                    onClick={() => handleEdit(customer.token)}
+                  <button onClick={() => handleEdit(customer.token)}
                     className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 shadow-md"
                   >
                     <Edit2 className="w-4 h-4" />
+                  </button>
+                  {/* Print */}
+                  <button onClick={() => router.push(`/report/${customer.token}`)}
+                    className="w-10 h-10 bg-linear-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 shadow-md"
+                  >
+                    <PrinterIcon className="w-4 h-4" />
                   </button>
 
                   {/* Delete */}

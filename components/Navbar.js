@@ -7,7 +7,7 @@ export default function Navbar() {
   const pathname = usePathname();
   return (
     <nav
-      className={`bg-white shadow-sm ${
+      className={`bg-white shadow-sm border-b border-orange-800/20 ${
         pathname.startsWith("/admin") ? "hidden" : ""
       }  `}
     >
@@ -30,13 +30,13 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/luggage/check-in"
+              href="/auth/login"
               className="text-gray-900 font-semibold text-lg hover:text-orange-500 transition-colors"
             >
               Check-In
             </Link>
             <Link
-              href="/luggage/check-out"
+              href="/auth/login"
               className="text-gray-900 font-semibold text-lg hover:text-orange-500 transition-colors"
             >
               Check-Out
