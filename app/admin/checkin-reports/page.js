@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -10,164 +10,57 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const statsData = [
-  { title: "Total Customers", value: "12", icon: Users },
-  { title: "Check In Customers", value: "9", icon: UserPlus },
-  { title: "Check Out Customers", value: "3", icon: UserMinus },
-];
+const formatDateTime = (date) => {
+  const d = new Date(date);
+  const pad = (num) => num.toString().padStart(2, '0');
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
 
-const customersData =  [
-  {
-    pnr: "10234",
-    token: '1245327',
-    name: 'Rahul Sharma',
-    phone: '9876543210',
-    pnrNumber: 'PNR10234',
-    adhara: '123456789012',
-    checkIn: '01/05/2025 10:30:00',
-    luggage: {
-      oneUnit: 2,
-      twoUnit: 1,
-      threeUnit: 0,
-      locker: 0,
-    }
-  },
-  {
-    pnr: "20456",
-    token: '9876543',
-    name: 'Neha Verma',
-    phone: '9123456789',
-    pnrNumber: 'PNR20456',
-    adhara: '987654321098',
-    checkIn: '01/06/2025 09:15:45',
-    luggage: {
-      oneUnit: 1,
-      twoUnit: 0,
-      threeUnit: 2,
-      locker: 1,
-    }
-  },
-  {
-    pnr: "30987",
-    token: '5556667',
-    name: 'Amit Patel',
-    phone: '9988776655',
-    pnrNumber: 'PNR30987',
-    adhara: '456789123456',
-    checkIn: '01/07/2025 14:20:30',
-    luggage: {
-      oneUnit: 0,
-      twoUnit: 3,
-      threeUnit: 1,
-      locker: 0,
-    }
-  },
-  {
-    pnr: "45678",
-    token: '1122334',
-    name: 'Pooja Singh',
-    phone: '9012345678',
-    pnrNumber: 'PNR45678',
-    adhara: '789123456789',
-    checkIn: '01/08/2025 08:45:12',
-    luggage: {
-      oneUnit: 3,
-      twoUnit: 0,
-      threeUnit: 0,
-      locker: 2,
-    }
-  },
-  {
-    pnr: "56789",
-    token: '4455667',
-    name: 'Karan Mehta',
-    phone: '8899776655',
-    pnrNumber: 'PNR56789',
-    adhara: '321654987012',
-    checkIn: '01/09/2025 11:10:22',
-    luggage: {
-      oneUnit: 1,
-      twoUnit: 2,
-      threeUnit: 1,
-      locker: 0,
-    }
-  },
-  {
-    pnr: "67890",
-    token: '7788990',
-    name: 'Sneha Iyer',
-    phone: '9345678901',
-    pnrNumber: 'PNR67890',
-    adhara: '654987321098',
-    checkIn: '01/10/2025 07:55:00',
-    luggage: {
-      oneUnit: 0,
-      twoUnit: 1,
-      threeUnit: 3,
-      locker: 1,
-    }
-  },
-  {
-    pnr: "78901",
-    token: '3344556',
-    name: 'Vikas Kumar',
-    phone: '9567890123',
-    pnrNumber: 'PNR78901',
-    adhara: '012345678901',
-    checkIn: '01/11/2025 13:40:15',
-    luggage: {
-      oneUnit: 2,
-      twoUnit: 0,
-      threeUnit: 2,
-      locker: 0,
-    }
-  },
-  {
-    pnr: "89012",
-    token: '6677889',
-    name: 'Anjali Rao',
-    phone: '9789012345',
-    pnrNumber: 'PNR89012',
-    adhara: '345678901234',
-    checkIn: '01/12/2025 16:25:50',
-    luggage: {
-      oneUnit: 4,
-      twoUnit: 1,
-      threeUnit: 0,
-      locker: 0,
-    }
-  },
-  {
-    pnr: "90123",
-    token: '9900112',
-    name: 'Rohit Malhotra',
-    phone: '9900123456',
-    pnrNumber: 'PNR90123',
-    adhara: '678901234567',
-    checkIn: '01/13/2025 12:00:00',
-    luggage: {
-      oneUnit: 0,
-      twoUnit: 2,
-      threeUnit: 0,
-      locker: 3,
-    }
-  },
-];
-
-const tableColumns = [
-  { label: "Name", key: "name" },
-  { label: "Phone Number", key: "phone" },
-  { label: "PNR No", key: "pnr" },
-  { label: "Aadhar No", key: "adhara" },
-  { label: "Check In", key: "checkIn" },
-  { label: "Actions", key: "actions" },
-];
+const API_BASE = "http://localhost:5000/api";
 
 export default function CheckInListPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [data] = useState(customersData);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [sortOrder, setSortOrder] = useState("asc"); // asc | desc
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchCheckins = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE}/checkins`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch checkins');
+        }
+        const checkins = await response.json();
+        
+        // Map backend data to component format
+        const mappedData = checkins.map((checkin) => ({
+          pnr: checkin.pnrNumber.replace('PNR', ''),
+          token: checkin.tokenNo,
+          name: checkin.passengerName,
+          phone: checkin.passengerMobile,
+          pnrNumber: checkin.pnrNumber,
+          adhara: checkin.aadharNumber,
+          checkIn: formatDateTime(checkin.checkInTime),
+          luggage: checkin.luggage,
+          status: checkin.status,
+          avatar: checkin.passengerName.charAt(0).toUpperCase() // Generate avatar initial
+        }));
+        
+        setData(mappedData);
+      } catch (err) {
+        console.error('Error fetching checkins:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCheckins();
+  }, []);
 
   const handleEdit = (token) => {
     router.push(`/admin/checkin-reports/${token}`);
@@ -191,6 +84,50 @@ export default function CheckInListPage() {
       return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
     });
 
+  // Compute stats
+  const totalCustomers = data.length;
+  const checkInCustomers = data.filter(c => c.status === 'checkedIn').length;
+  const checkOutCustomers = data.filter(c => c.status === 'checkedOut').length;
+
+  const statsData = [
+    { title: "Total Customers", value: totalCustomers.toString(), icon: Users },
+    { title: "Check In Customers", value: checkInCustomers.toString(), icon: UserPlus },
+    { title: "Check Out Customers", value: checkOutCustomers.toString(), icon: UserMinus },
+  ];
+
+  const tableColumns = [
+    { label: "Name", key: "name" },
+    { label: "Phone Number", key: "phone" },
+    { label: "PNR No", key: "pnr" },
+    { label: "Aadhar No", key: "adhara" },
+    { label: "Check In", key: "checkIn" },
+    { label: "Actions", key: "actions" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+        <p className="text-gray-600">Loading check-ins...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 print:ml-0">
       {/* Top Filter Bar */}
@@ -203,7 +140,7 @@ export default function CheckInListPage() {
             placeholder="Search by name, phone, PNR, Aadhar, or date..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white backdrop-blur-sm rounded-full text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-gray-200"
+            className="w-full pl-12 pr-4 py-3.5 bg-white rounded-full text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-gray-200"
           />
         </div>
 
@@ -303,7 +240,7 @@ export default function CheckInListPage() {
         <div className="divide-y divide-gray-100">
           {filteredCustomers.map((customer, index) => (
             <div
-              key={customer.pnr}
+              key={customer.token}
               className="px-6 py-4 hover:bg-linear-to-r hover:from-orange-50 hover:to-gray-50 transition-all group"
             >
               <div className="grid grid-cols-6 gap-4 items-center">
@@ -355,8 +292,6 @@ export default function CheckInListPage() {
             </div>
           )}
         </div>
-
-
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
 "use client"
+import { API_BASE } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 const luggageTypes = [
@@ -15,6 +17,7 @@ const formatDateTime = (date) => {
 
 const generateToken = () => Math.floor(Math.random() * 9000000) + 1000000;
 
+
 export default function CheckInForm() {
   const [formData, setFormData] = useState({
     checkInTime: '',
@@ -28,15 +31,27 @@ export default function CheckInForm() {
       twoUnit: 0,
       threeUnit: 0,
       locker: 0,
-    }
+    },
+    amount: { // Added for completeness, though schema has it as nested
+      oneUnitAmount: 0,
+      twoUnitAmount: 0,
+      threeUnitAmount: 0,
+      lockerAmount: 0,
+    },
+    status: 'checkedIn' // Default as per schema
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     const now = new Date();
+    const formattedTime = formatDateTime(now);
+    const token = generateToken().toString();
     setFormData(prev => ({
       ...prev,
-      checkInTime: formatDateTime(now),
-      tokenNo: generateToken().toString(),
+      checkInTime: formattedTime,
+      tokenNo: token,
     }));
   }, []);
 
@@ -52,21 +67,96 @@ export default function CheckInForm() {
 
   const handleLuggageChange = (key, value) => {
     const numValue = parseInt(value) || 0;
+    const rate = luggageTypes.find(type => type.key === key)?.rate || 0;
     setFormData(prev => ({
       ...prev,
-      luggage: { ...prev.luggage, [key]: numValue }
+      luggage: { ...prev.luggage, [key]: numValue },
+      amount: {
+        ...prev.amount,
+        [`${key}Amount`]: numValue * rate
+      }
     }));
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value.toUpperCase() })); // Uppercase for PNR as per schema
   };
 
-  const handleUpdate = () => {
-    console.log('Form Data:', formData);
-    setTimeout(() => {
-      alert('Check-in data updated successfully!');
-    }, 1000);
+  const handleTokenChange = (value) => {
+    setFormData(prev => ({ ...prev, tokenNo: value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.passengerMobile || !formData.passengerName || !formData.pnrNumber || !formData.aadharNumber || !formData.tokenNo) {
+      setError('Please fill all required fields');
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(formData.passengerMobile)) {
+      setError('Mobile must be 10 digits');
+      return;
+    }
+    if (!/^[0-9]{12}$/.test(formData.aadharNumber)) {
+      setError('Aadhaar must be 12 digits');
+      return;
+    }
+    if (getTotalUnits() === 0) {
+      setError('At least one luggage unit required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Prepare payload: omit checkInTime as backend defaults to Date.now for accuracy
+      const payload = {
+        tokenNo: formData.tokenNo.trim(),
+        passengerMobile: formData.passengerMobile.trim(),
+        passengerName: formData.passengerName.trim(),
+        pnrNumber: formData.pnrNumber.trim(),
+        aadharNumber: formData.aadharNumber.trim(),
+        luggage: formData.luggage,
+        amount: formData.amount,
+        status: formData.status
+      };
+
+      const response = await fetch(`${API_BASE}/checkins`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to save check-in');
+      }
+
+      const savedData = await response.json();
+      console.log('Check-in saved successfully:', savedData);
+      alert('Check-in data saved successfully!');
+      router.push("/admin/checkin-reports")
+      
+      // Optional: Reset form or update token for next
+      const newToken = generateToken().toString();
+      setFormData(prev => ({
+        ...prev,
+        tokenNo: newToken,
+        passengerMobile: '',
+        passengerName: '',
+        pnrNumber: '',
+        aadharNumber: '',
+        luggage: { oneUnit: 0, twoUnit: 0, threeUnit: 0, locker: 0 },
+        amount: { oneUnitAmount: 0, twoUnitAmount: 0, threeUnitAmount: 0, lockerAmount: 0 }
+      }));
+      setFormData(prev => ({ ...prev, checkInTime: formatDateTime(new Date()) })); // Update time display
+    } catch (err) {
+      console.error('Error saving check-in:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -74,6 +164,12 @@ export default function CheckInForm() {
       <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
         {/* Header */}
         <h1 className="text-3xl font-bold text-white mb-8 text-left border-b border-amber-400/20 pb-2">Check In</h1>
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">
+            {error}
+          </div>
+        )}
         {/* Form Grid */}
         <div className="space-y-4">
           {/* Row 1 - Check In Time & Token No */}
@@ -97,8 +193,8 @@ export default function CheckInForm() {
               <input
                 type="text"
                 value={formData.tokenNo}
-                readOnly
-                placeholder="Auto-generated"
+                onChange={(e) => handleTokenChange(e.target.value)}
+                placeholder="Enter or auto-generated"
                 className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -169,7 +265,7 @@ export default function CheckInForm() {
                     {type.label}
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     min="0"
                     value={formData.luggage[type.key]}
                     onChange={(e) => handleLuggageChange(type.key, e.target.value)}
@@ -230,14 +326,35 @@ export default function CheckInForm() {
           </div>
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-end gap-4 pt-2">
-            <button className="px-6 py-3 cursor-pointer bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all">
+            <button 
+              type="button"
+              className="px-6 py-3 cursor-pointer bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all"
+              onClick={() => {
+                // Simple reset without submit
+                const newToken = generateToken().toString();
+                setFormData(prev => ({
+                  ...prev,
+                  tokenNo: newToken,
+                  passengerMobile: '',
+                  passengerName: '',
+                  pnrNumber: '',
+                  aadharNumber: '',
+                  luggage: { oneUnit: 0, twoUnit: 0, threeUnit: 0, locker: 0 },
+                  amount: { oneUnitAmount: 0, twoUnitAmount: 0, threeUnitAmount: 0, lockerAmount: 0 }
+                }));
+                setFormData(prev => ({ ...prev, checkInTime: formatDateTime(new Date()) }));
+                setError('');
+              }}
+            >
               Cancel
             </button>
             <button 
-              onClick={handleUpdate}
-              className="px-6 py-3 cursor-pointer bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-6 py-3 cursor-pointer bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
             >
-              Update
+              {loading ? 'Saving...' : 'Update'}
             </button>
           </div>
         </div>
