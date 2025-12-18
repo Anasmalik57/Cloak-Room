@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { API_BASE } from '@/lib/api';
+import Barcode from 'react-barcode';
 
 const formatDateTime = (date) => {
   const d = new Date(date);
@@ -219,6 +220,19 @@ export default function CheckoutReport() {
               </div>
             </div>
           </div>
+{/* Barcode Section */}
+<div className="flex justify-center mt-3 print:mt-2">
+  <div className="bg-white p-2 border border-gray-300 rounded">
+    <Barcode
+      value={window.location.href}
+      width={1.5}
+      height={45}
+      fontSize={10}
+      margin={0}
+      displayValue={true}
+    />
+  </div>
+</div>
 
           {/* Footer */}
           <div className="text-center text-[9px] text-gray-500 pt-2 mt-2 border-t border-gray-200">
