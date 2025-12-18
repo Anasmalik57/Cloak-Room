@@ -1,22 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Edit2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/api";
 
-const customersData = [
-  { token: "1245327", name: "Arjun Khanna", phone: "+91 8765432109", checkInTime: "10-06-2025 : 04 AM", checkOutTime: "10-06-2025 : 01 PM", totalTime: "09 :00 : 00", price: "42 Rs", avatar: "AK", },
-  { token: "9876543", name: "Meera Joshi", phone: "+91 8654321098", checkInTime: "10-06-2025 : 06 AM", checkOutTime: "11-06-2025 : 06 AM", totalTime: "24 :00 : 00", price: "88 Rs", avatar: "MJ", },
-  { token: "5556667", name: "Nitin Chawla", phone: "+91 8543210987", checkInTime: "11-06-2025 : 09 AM", checkOutTime: "11-06-2025 : 05 PM", totalTime: "08 :00 : 00", price: "36 Rs", avatar: "NC", },
-  { token: "1122334", name: "Ritika Bansal", phone: "+91 8432109876", checkInTime: "12-06-2025 : 07 AM", checkOutTime: "13-06-2025 : 07 AM", totalTime: "24 :00 : 00", price: "92 Rs", avatar: "RB", },
-  { token: "4455667", name: "Imran Khan", phone: "+91 8321098765", checkInTime: "13-06-2025 : 10 AM", checkOutTime: "13-06-2025 : 08 PM", totalTime: "10 :00 : 00", price: "48 Rs", avatar: "IK", },
-  { token: "7788990", name: "Tanvi Kulkarni", phone: "+91 8210987654", checkInTime: "14-06-2025 : 05 AM", checkOutTime: "15-06-2025 : 05 AM", totalTime: "24 :00 : 00", price: "90 Rs", avatar: "TK", },
-  { token: "3344556", name: "Sahil Oberoi", phone: "+91 8109876543", checkInTime: "15-06-2025 : 08 AM", checkOutTime: "15-06-2025 : 06 PM", totalTime: "10 :00 : 00", price: "46 Rs", avatar: "SO", },
-  { token: "6677889", name: "Ayesha Farooq", phone: "+91 8098765432", checkInTime: "16-06-2025 : 06 AM", checkOutTime: "17-06-2025 : 06 AM", totalTime: "24 :00 : 00", price: "96 Rs", avatar: "AF", },
-  { token: "9900112", name: "Manoj Tripathi", phone: "+91 7987654321", checkInTime: "17-06-2025 : 11 AM", checkOutTime: "17-06-2025 : 09 PM", totalTime: "10 :00 : 00", price: "52 Rs", avatar: "MT", },
-  { token: "2233445", name: "Kavya Shetty", phone: "+91 7876543210", checkInTime: "18-06-2025 : 07 AM", checkOutTime: "19-06-2025 : 07 AM", totalTime: "24 :00 : 00", price: "99 Rs", avatar: "KS", },
-  { token: "5566778", name: "Rohan Dutta", phone: "+91 7765432109", checkInTime: "19-06-2025 : 09 AM", checkOutTime: "19-06-2025 : 04 PM", totalTime: "07 :00 : 00", price: "34 Rs", avatar: "RD", },
-  { token: "8899001", name: "Shalini Gupta", phone: "+91 7654321098", checkInTime: "20-06-2025 : 05 AM", checkOutTime: "21-06-2025 : 05 AM", totalTime: "24 :00 : 00", price: "102 Rs", avatar: "SG", },
-];
+
+const formatDate = (date) => {
+  const d = new Date(date);
+  const pad = (num) => num.toString().padStart(2, '0');
+  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+};
+
+const formatTime = (date) => {
+  const d = new Date(date);
+  let hours = d.getHours();
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  return `${hours.toString().padStart(2, '0')} ${ampm}`;
+};
+
+const formatTotalTime = (checkInTime, checkOutTime) => {
+  const inTime = new Date(checkInTime);
+  const outTime = new Date(checkOutTime);
+  const diffMs = outTime.getTime() - inTime.getTime();
+  if (diffMs < 0) return '00 : 00 : 00';
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const hours = Math.floor(diffSeconds / 3600);
+  const minutes = Math.floor((diffSeconds % 3600) / 60);
+  const seconds = diffSeconds % 60;
+  return `${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
+};
 
 const tableColumns = [
   { label: "Name", key: "name" },
@@ -30,13 +45,80 @@ const tableColumns = [
 
 export default function CheckOutListPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [data, setData] = useState(customersData);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleDelete = (index) => {
-    const updated = [...data];
-    updated.splice(index, 1);
-    setData(updated);
+  useEffect(() => {
+    const fetchCheckouts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE}/checkouts`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch checkouts');
+        }
+        const checkouts = await response.json();
+        
+        // Map backend data to component format
+        const mappedData = checkouts.map((checkout) => ({
+          id: checkout._id,
+          token: checkout.tokenNo,
+          name: checkout.passengerName,
+          phone: `+91 ${checkout.passengerMobile}`,
+          checkInTime: `${formatDate(checkout.checkInTime)} : ${formatTime(checkout.checkInTime)}`,
+          checkOutTime: `${formatDate(checkout.updatedAt)} : ${formatTime(checkout.updatedAt)}`,
+          totalTime: formatTotalTime(checkout.checkInTime, checkout.updatedAt),
+          price: `${checkout.amount.totalAmount} Rs`,
+          avatar: checkout.passengerName.substring(0, 2).toUpperCase(),
+          rawCheckIn: checkout.checkInTime,
+          rawCheckOut: checkout.updatedAt
+        }));
+        
+        setData(mappedData);
+      } catch (err) {
+        console.error('Error fetching checkouts:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCheckouts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this checkout?')) return;
+    
+    try {
+      const response = await fetch(`${API_BASE}/checkouts/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete checkout');
+      }
+      
+      // Refetch data after delete
+      const fetchResponse = await fetch(`${API_BASE}/checkouts`);
+      const checkouts = await fetchResponse.json();
+      const mappedData = checkouts.map((checkout) => ({
+        id: checkout._id,
+        token: checkout.tokenNo,
+        name: checkout.passengerName,
+        phone: `+91 ${checkout.passengerMobile}`,
+        checkInTime: `${formatDate(checkout.checkInTime)} : ${formatTime(checkout.checkInTime)}`,
+        checkOutTime: `${formatDate(checkout.updatedAt)} : ${formatTime(checkout.updatedAt)}`,
+        totalTime: formatTotalTime(checkout.checkInTime, checkout.updatedAt),
+        price: `${checkout.amount.totalAmount} Rs`,
+        avatar: checkout.passengerName.substring(0, 2).toUpperCase(),
+        rawCheckIn: checkout.checkInTime,
+        rawCheckOut: checkout.updatedAt
+      }));
+      setData(mappedData);
+    } catch (err) {
+      console.error('Error deleting checkout:', err);
+      alert('Failed to delete checkout');
+    }
   };
 
   const handleEdit = (token) => {
@@ -55,8 +137,32 @@ export default function CheckOutListPage() {
     );
   });
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+        <p className="text-gray-600">Loading checkouts...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 print:ml-0">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 print:p-0 flex-1 ml-64 print:ml-0">
       {/* Top Filter Bar */}
       <div className="mb-8 flex items-center gap-4 print:hidden">
         {/* Search Bar */}
@@ -95,21 +201,21 @@ export default function CheckOutListPage() {
       </div>
 
       {/* Customers Table */}
-      <div className="bg-white backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-gray-200">
+      <div className="bg-white backdrop-blur-sm rounded-3xl print:rounded-none shadow-xl overflow-hidden border border-gray-200">
         {/* Table Header */}
-        <div className="bg-linear-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+        <div className="bg-linear-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200 ">
           <div className="grid grid-cols-7 gap-4">
             {tableColumns.map((col, index) => (
               <div
                 key={index}
-                className={`flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider ${
+                className={`flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-wider print:text-[10px] ${
                   col.key === "actions" ? "justify-center" : ""
                 }`}
               >
                 {col.label}
                 {col.key !== "actions" && (
                   <svg
-                    className="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-500 transition-colors"
+                    className="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-500 transition-colors print:hidden"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -129,7 +235,7 @@ export default function CheckOutListPage() {
 
         {/* Table Body */}
         <div className="divide-y divide-gray-100">
-          {filteredCustomers.map((customer, index) => (
+          {filteredCustomers.map((customer) => (
             <div
               key={customer.token}
               className="px-6 py-4 hover:bg-linear-to-r hover:from-orange-50 hover:to-gray-50 transition-all group"
@@ -137,7 +243,7 @@ export default function CheckOutListPage() {
               <div className="grid grid-cols-7 gap-4 items-center">
                 {/* Name with Avatar */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-linear-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
+                  <div className="w-10 h-10 print:hidden bg-linear-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all">
                     {customer.avatar}
                   </div>
                   <span className="text-sm font-semibold text-gray-800">
@@ -182,7 +288,7 @@ export default function CheckOutListPage() {
 
                   {/* Delete */}
                   <button
-                    onClick={() => handleDelete(index)}
+                    onClick={() => handleDelete(customer.id)}
                     className="w-10 h-10 bg-linear-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 shadow-md"
                   >
                     <Trash2 className="w-4 h-4" />

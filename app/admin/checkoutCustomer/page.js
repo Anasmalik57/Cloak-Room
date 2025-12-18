@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/api";
 
 const luggageTypes = [
   { label: "One Unit", rate: 30, key: "oneUnit" },
@@ -9,58 +11,16 @@ const luggageTypes = [
   { label: "Locker", rate: 60, key: "locker" },
 ];
 
-const demoRecords = [
-  {
-    tokenNo: "1245327",
-    passengerName: "Vikrant Verma",
-    passengerMobile: "1234567890",
-    pnrNumber: "123",
-    checkInTime: "12/02/2025 11:16:12",
-    luggage: {
-      oneUnit: 2,
-      twoUnit: 1,
-      threeUnit: 1,
-      locker: 0,
-    },
-  },
-  {
-    tokenNo: "9876543",
-    passengerName: "Priya Sharma",
-    passengerMobile: "0987654321",
-    pnrNumber: "456",
-    checkInTime: "12/15/2025 09:30:00",
-    luggage: {
-      oneUnit: 1,
-      twoUnit: 0,
-      threeUnit: 2,
-      locker: 1,
-    },
-  },
-  {
-    tokenNo: "5556667",
-    passengerName: "Rahul Kumar",
-    passengerMobile: "1122334455",
-    pnrNumber: "789",
-    checkInTime: "12/15/2025 10:30:22",
-    luggage: {
-      oneUnit: 4,
-      twoUnit: 3,
-      threeUnit: 2,
-      locker: 0,
-    },
-  },
-];
 
 const formatDateTime = (date) => {
+  const d = new Date(date);
   const pad = (num) => num.toString().padStart(2, "0");
-  return `${pad(date.getMonth() + 1)}/${pad(
-    date.getDate()
-  )}/${date.getFullYear()} ${pad(date.getHours())}:${pad(
-    date.getMinutes()
-  )}:${pad(date.getSeconds())}`;
+  return `${pad(d.getMonth() + 1)}/${pad(
+    d.getDate()
+  )}/${d.getFullYear()} ${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}:${pad(d.getSeconds())}`;
 };
-
-const generateToken = () => Math.floor(Math.random() * 9000000) + 1000000;
 
 export default function CheckOutForm() {
   const [formData, setFormData] = useState({
@@ -78,21 +38,53 @@ export default function CheckOutForm() {
     },
   });
 
+  const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isPopulated, setIsPopulated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const now = new Date();
     setFormData((prev) => ({
       ...prev,
       checkOutTime: formatDateTime(now),
-      // tokenNo: generateToken().toString(),
     }));
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim() === "") return;
+    const fetchRecords = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/checkins`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch check-ins');
+        }
+        const checkins = await response.json();
+        const checkedInRecords = checkins
+          .filter((c) => c.status === 'checkedIn')
+          .map((c) => ({
+            tokenNo: c.tokenNo,
+            passengerName: c.passengerName,
+            passengerMobile: c.passengerMobile,
+            pnrNumber: c.pnrNumber,
+            checkInTime: formatDateTime(c.checkInTime),
+            luggage: c.luggage,
+          }));
+        setRecords(checkedInRecords);
+      } catch (err) {
+        console.error('Error fetching records:', err);
+        setError(err.message);
+      }
+    };
 
-    const matchedRecord = demoRecords.find(
+    fetchRecords();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "" || records.length === 0) return;
+
+    const matchedRecord = records.find(
       (record) =>
         record.tokenNo.includes(searchQuery) ||
         record.pnrNumber.includes(searchQuery) ||
@@ -109,22 +101,28 @@ export default function CheckOutForm() {
         checkInTime: matchedRecord.checkInTime,
         luggage: { ...matchedRecord.luggage },
       }));
+      setIsPopulated(true);
+      setError('');
+    } else {
+      setError('No matching record found');
     }
-  }, [searchQuery]);
+  }, [searchQuery, records]);
 
   useEffect(() => {
-    // Populate on tokenNo, pnrNumber, or passengerName change if matches demo
+    if (records.length === 0) return;
+
+    // Auto-populate on tokenNo change
     if (
       formData.tokenNo &&
-      demoRecords.some((r) => r.tokenNo === formData.tokenNo)
+      records.some((r) => r.tokenNo === formData.tokenNo)
     ) {
-      const matched = demoRecords.find((r) => r.tokenNo === formData.tokenNo);
+      const matched = records.find((r) => r.tokenNo === formData.tokenNo);
       if (
         matched &&
-        formData.passengerName === "" &&
-        formData.passengerMobile === "" &&
-        formData.pnrNumber === "" &&
-        formData.checkInTime === ""
+        (formData.passengerName === "" ||
+         formData.passengerMobile === "" ||
+         formData.pnrNumber === "" ||
+         formData.checkInTime === "")
       ) {
         setFormData((prev) => ({
           ...prev,
@@ -134,19 +132,25 @@ export default function CheckOutForm() {
           checkInTime: matched.checkInTime,
           luggage: { ...matched.luggage },
         }));
+        setIsPopulated(true);
+        setError('');
       }
     }
-    // Similar for pnrNumber and passengerName
+
+    // Auto-populate on pnrNumber change
     if (
       formData.pnrNumber &&
-      demoRecords.some((r) => r.pnrNumber === formData.pnrNumber)
+      records.some((r) => r.pnrNumber === formData.pnrNumber)
     ) {
-      const matched = demoRecords.find(
+      const matched = records.find(
         (r) => r.pnrNumber === formData.pnrNumber
       );
       if (
         matched &&
-        (formData.tokenNo === "" || formData.passengerName === "")
+        (formData.tokenNo === "" ||
+         formData.passengerName === "" ||
+         formData.passengerMobile === "" ||
+         formData.checkInTime === "")
       ) {
         setFormData((prev) => ({
           ...prev,
@@ -156,20 +160,30 @@ export default function CheckOutForm() {
           checkInTime: matched.checkInTime,
           luggage: { ...matched.luggage },
         }));
+        setIsPopulated(true);
+        setError('');
       }
     }
+
+    // Auto-populate on passengerName change
     if (
       formData.passengerName &&
-      demoRecords.some(
+      records.some(
         (r) =>
           r.passengerName.toLowerCase() === formData.passengerName.toLowerCase()
       )
     ) {
-      const matched = demoRecords.find(
+      const matched = records.find(
         (r) =>
           r.passengerName.toLowerCase() === formData.passengerName.toLowerCase()
       );
-      if (matched && (formData.tokenNo === "" || formData.pnrNumber === "")) {
+      if (
+        matched &&
+        (formData.tokenNo === "" ||
+         formData.pnrNumber === "" ||
+         formData.passengerMobile === "" ||
+         formData.checkInTime === "")
+      ) {
         setFormData((prev) => ({
           ...prev,
           tokenNo: matched.tokenNo,
@@ -178,9 +192,11 @@ export default function CheckOutForm() {
           checkInTime: matched.checkInTime,
           luggage: { ...matched.luggage },
         }));
+        setIsPopulated(true);
+        setError('');
       }
     }
-  }, [formData.tokenNo, formData.pnrNumber, formData.passengerName]);
+  }, [formData.tokenNo, formData.pnrNumber, formData.passengerName, records]);
 
   const calculateBaseTotal = () => {
     return luggageTypes.reduce((total, type) => {
@@ -190,15 +206,19 @@ export default function CheckOutForm() {
 
   const calculateHours = () => {
     if (!formData.checkInTime || !formData.checkOutTime) return 0;
-    const inTime = new Date(formData.checkInTime);
-    const outTime = new Date(formData.checkOutTime);
+    const inTime = new Date(
+      formData.checkInTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:$6')
+    );
+    const outTime = new Date(
+      formData.checkOutTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:$6')
+    );
     const diffMs = outTime.getTime() - inTime.getTime();
     return diffMs > 0 ? diffMs / (1000 * 60 * 60) : 0;
   };
 
   const getMultiplier = () => {
     const hours = calculateHours();
-    return hours > 0 ? Math.ceil(hours / 24) : 0;
+    return hours > 0 ? Math.ceil(hours / 24) : 1; // At least 1 day
   };
 
   const calculateTotal = () => {
@@ -221,14 +241,15 @@ export default function CheckOutForm() {
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setIsPopulated(false); // Allow repopulate
+    setError('');
   };
 
   const handleCancel = () => {
-    console.log("Cancel clicked");
-    // Reset form if needed
+    const now = new Date();
     setFormData({
-      checkOutTime: formatDateTime(new Date()),
-      tokenNo: generateToken().toString(),
+      checkOutTime: formatDateTime(now),
+      tokenNo: "",
       passengerName: "",
       passengerMobile: "",
       pnrNumber: "",
@@ -241,28 +262,59 @@ export default function CheckOutForm() {
       },
     });
     setSearchQuery("");
+    setIsPopulated(false);
+    setError('');
   };
 
-  const handleUpdate = () => {
-    console.log("Update clicked", formData);
-    setTimeout(() => {
-      alert("Check-out data updated successfully!");
+  const handleUpdate = async () => {
+    if (!formData.tokenNo || getTotalUnits() === 0) {
+      setError('Token and luggage required');
+      return;
+    }
 
-     setFormData({
-    checkOutTime: "",
-    tokenNo: "",
-    passengerName: "",
-    passengerMobile: "",
-    pnrNumber: "",
-    checkInTime: "",
-    luggage: {
-      oneUnit: 0,
-      twoUnit: 0,
-      threeUnit: 0,
-      locker: 0,
-    },
-  })
-    }, 1000);
+    const multiplier = getMultiplier();
+    if (multiplier === 0) {
+      setError('Invalid check-in time');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const finalAmount = {
+        oneUnitAmount: formData.luggage.oneUnit * 30 * multiplier,
+        twoUnitAmount: formData.luggage.twoUnit * 60 * multiplier,
+        threeUnitAmount: formData.luggage.threeUnit * 90 * multiplier,
+        lockerAmount: formData.luggage.locker * 60 * multiplier,
+        totalAmount: calculateTotal(),
+      };
+
+      const response = await fetch(`${API_BASE}/checkouts/token/${formData.tokenNo}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: finalAmount }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to update checkout');
+      }
+
+      const updated = await response.json();
+      console.log('Checkout updated successfully:', updated);
+      alert("Check-out data updated successfully!");
+      router.push("/admin/checkout-reports")
+
+      handleCancel();
+    } catch (err) {
+      console.error('Error updating checkout:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const hours = calculateHours();
@@ -287,6 +339,13 @@ export default function CheckOutForm() {
             />
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Form Grid */}
         <div className="space-y-6">
@@ -331,6 +390,7 @@ export default function CheckOutForm() {
                   handleInputChange("passengerName", e.target.value)
                 }
                 placeholder="Enter full name"
+                readOnly={isPopulated}
                 className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -345,6 +405,7 @@ export default function CheckOutForm() {
                   handleInputChange("passengerMobile", e.target.value)
                 }
                 placeholder="Enter mobile number"
+                readOnly={isPopulated}
                 className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -361,6 +422,7 @@ export default function CheckOutForm() {
                 value={formData.pnrNumber}
                 onChange={(e) => handleInputChange("pnrNumber", e.target.value)}
                 placeholder="Enter PNR"
+                readOnly={isPopulated}
                 className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -371,9 +433,7 @@ export default function CheckOutForm() {
               <input
                 type="text"
                 value={formData.checkInTime}
-                onChange={(e) =>
-                  handleInputChange("checkInTime", e.target.value)
-                }
+                readOnly
                 placeholder="MM/DD/YYYY HH:MM:SS"
                 className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
@@ -401,6 +461,7 @@ export default function CheckOutForm() {
                       handleLuggageChange(type.key, e.target.value)
                     }
                     placeholder="0"
+                    readOnly={isPopulated}
                     className="w-full px-3 py-2 bg-white/5 rounded-lg text-white placeholder-gray-400 font-bold text-center focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10 text-sm"
                   />
                 </div>
@@ -468,15 +529,17 @@ export default function CheckOutForm() {
           <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
             <button
               onClick={handleCancel}
-              className="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all"
+              disabled={loading}
+              className="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleUpdate}
-              className="px-6 py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
+              disabled={loading}
+              className="px-6 py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Update
+              {loading ? 'Updating...' : 'Update'}
             </button>
           </div>
 

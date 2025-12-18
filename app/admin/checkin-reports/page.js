@@ -9,20 +9,21 @@ import {
   UserMinus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/api";
 
 const formatDateTime = (date) => {
   const d = new Date(date);
-  const pad = (num) => num.toString().padStart(2, '0');
-  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const pad = (num) => num.toString().padStart(2, "0");
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
-
-const API_BASE = "http://localhost:5000/api";
 
 export default function CheckInListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // asc | desc
   const router = useRouter();
 
@@ -32,13 +33,13 @@ export default function CheckInListPage() {
         setLoading(true);
         const response = await fetch(`${API_BASE}/checkins`);
         if (!response.ok) {
-          throw new Error('Failed to fetch checkins');
+          throw new Error("Failed to fetch checkins");
         }
         const checkins = await response.json();
-        
+
         // Map backend data to component format
         const mappedData = checkins.map((checkin) => ({
-          pnr: checkin.pnrNumber.replace('PNR', ''),
+          pnr: checkin.pnrNumber.replace("PNR", ""),
           token: checkin.tokenNo,
           name: checkin.passengerName,
           phone: checkin.passengerMobile,
@@ -47,12 +48,12 @@ export default function CheckInListPage() {
           checkIn: formatDateTime(checkin.checkInTime),
           luggage: checkin.luggage,
           status: checkin.status,
-          avatar: checkin.passengerName.charAt(0).toUpperCase() // Generate avatar initial
+          avatar: checkin.passengerName.charAt(0).toUpperCase(), // Generate avatar initial
         }));
-        
+
         setData(mappedData);
       } catch (err) {
-        console.error('Error fetching checkins:', err);
+        console.error("Error fetching checkins:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -67,7 +68,7 @@ export default function CheckInListPage() {
   };
 
   const filteredCustomers = data
-    .filter((customer) => customer.status === 'checkedIn')
+    .filter((customer) => customer.status === "checkedIn")
     .filter((customer) => {
       const q = searchQuery.toLowerCase();
       return (
@@ -87,13 +88,23 @@ export default function CheckInListPage() {
 
   // Compute stats
   const totalCustomers = data.length;
-  const checkInCustomers = data.filter(c => c.status === 'checkedIn').length;
-  const checkOutCustomers = data.filter(c => c.status === 'checkedOut').length;
+  const checkInCustomers = data.filter((c) => c.status === "checkedIn").length;
+  const checkOutCustomers = data.filter(
+    (c) => c.status === "checkedOut"
+  ).length;
 
   const statsData = [
     { title: "Total Customers", value: totalCustomers.toString(), icon: Users },
-    { title: "Check In Customers", value: checkInCustomers.toString(), icon: UserPlus },
-    { title: "Check Out Customers", value: checkOutCustomers.toString(), icon: UserMinus },
+    {
+      title: "Check In Customers",
+      value: checkInCustomers.toString(),
+      icon: UserPlus,
+    },
+    {
+      title: "Check Out Customers",
+      value: checkOutCustomers.toString(),
+      icon: UserMinus,
+    },
   ];
 
   const tableColumns = [
@@ -118,8 +129,8 @@ export default function CheckInListPage() {
       <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg"
           >
             Retry
@@ -277,7 +288,7 @@ export default function CheckInListPage() {
 
                 {/* Actions */}
                 <div className="flex justify-center">
-                  <button 
+                  <button
                     onClick={() => handleEdit(customer.token)}
                     className="w-10 h-10 bg-linear-to-br cursor-pointer from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 group-hover:rotate-12 shadow-md"
                   >
@@ -289,7 +300,9 @@ export default function CheckInListPage() {
           ))}
           {filteredCustomers.length === 0 && (
             <div className="px-6 py-12 text-center">
-              <p className="text-gray-500 text-lg">No customers found matching your search.</p>
+              <p className="text-gray-500 text-lg">
+                No customers found matching your search.
+              </p>
             </div>
           )}
         </div>
