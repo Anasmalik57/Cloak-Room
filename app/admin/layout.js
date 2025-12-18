@@ -1,6 +1,8 @@
+"use client"
 import React from 'react';
 import Link from 'next/link';
 import { Users, UserPlus, UserMinus, FileText, LogOut, Clock, Package } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const navSections = [
   {
@@ -26,6 +28,7 @@ const navSections = [
 ];
 
 export default function AdminSidebar({ children }) {
+  const router = useRouter()
   return (
     <>
       <div className="w-64 fixed top-0 left-0 bg-linear-to-br from-blue-600 via-blue-600 to-blue-500 text-white flex flex-col h-screen print:hidden shadow-xl">
@@ -69,7 +72,7 @@ export default function AdminSidebar({ children }) {
 
         {/* Logout */}
         <div className="p-4 border-t border-white/20 mt-auto">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-blue-100 hover:text-white">
+          <button onClick={()=> router.push("/")} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all duration-200 text-blue-100 hover:text-white">
             <LogOut className="w-5 h-5" />
             <span className="text-sm font-medium">Log out</span>
           </button>
