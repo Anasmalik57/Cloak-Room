@@ -7,7 +7,7 @@ export default function Navbar() {
   const pathname = usePathname();
   return (
     <nav
-      className={`bg-white shadow-sm border-b border-orange-800/20 ${
+      className={`bg-white shadow-sm border-b border-orange-800/20 print:hidden ${
         pathname.startsWith("/admin") ? "hidden" : ""
       }  `}
     >

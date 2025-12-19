@@ -136,7 +136,7 @@ export default function CheckInForm() {
       const savedData = await response.json();
       console.log('Check-in saved successfully:', savedData);
       alert('Check-in data saved successfully!');
-      router.push("/admin/checkin-reports")
+      router.push(`/checkin-reciepts/${savedData.tokenNo}`);
       
       // Optional: Reset form or update token for next
       const newToken = generateToken().toString();

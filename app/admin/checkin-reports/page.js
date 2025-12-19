@@ -7,6 +7,7 @@ import {
   Users,
   UserPlus,
   UserMinus,
+  PrinterIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
@@ -287,12 +288,18 @@ export default function CheckInListPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-2">
                   <button
                     onClick={() => handleEdit(customer.token)}
-                    className="w-10 h-10 bg-linear-to-br cursor-pointer from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 group-hover:rotate-12 shadow-md"
+                    className="w-10 h-10 bg-linear-to-br cursor-pointer from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 shadow-md"
                   >
                     <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => router.push(`/checkin-reciepts/${customer.token}`)}
+                    className="w-10 h-10 bg-linear-to-br cursor-pointer from-green-500 to-green-600 rounded-full flex items-center justify-center text-white hover:shadow-xl transition-all hover:scale-110 shadow-md"
+                  >
+                    <PrinterIcon className="w-4 h-4" />
                   </button>
                 </div>
               </div>
