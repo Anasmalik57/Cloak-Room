@@ -69,7 +69,7 @@ export default function CheckOutListPage() {
           checkInTime: `${formatDate(checkout.checkInTime)} : ${formatTime(checkout.checkInTime)}`,
           checkOutTime: `${formatDate(checkout.updatedAt)} : ${formatTime(checkout.updatedAt)}`,
           totalTime: formatTotalTime(checkout.checkInTime, checkout.updatedAt),
-          price: `${checkout.amount.totalAmount} Rs`,
+          price: `${checkout.amount.totalAmount} Rs (${calculateDays(checkout.checkInTime, checkout.updatedAt)} Day${calculateDays(checkout.checkInTime, checkout.updatedAt) > 1 ? 's' : ''})`,
           avatar: checkout.passengerName.substring(0, 2).toUpperCase(),
           rawCheckIn: checkout.checkInTime,
           rawCheckOut: checkout.updatedAt
@@ -110,7 +110,7 @@ export default function CheckOutListPage() {
         checkInTime: `${formatDate(checkout.checkInTime)} : ${formatTime(checkout.checkInTime)}`,
         checkOutTime: `${formatDate(checkout.updatedAt)} : ${formatTime(checkout.updatedAt)}`,
         totalTime: formatTotalTime(checkout.checkInTime, checkout.updatedAt),
-        price: `${checkout.amount.totalAmount} Rs`,
+        price: `${checkout.amount.totalAmount} Rs (${calculateDays(checkout.checkInTime, checkout.updatedAt)} Day${calculateDays(checkout.checkInTime, checkout.updatedAt) > 1 ? 's' : ''})`,
         avatar: checkout.passengerName.substring(0, 2).toUpperCase(),
         rawCheckIn: checkout.checkInTime,
         rawCheckOut: checkout.updatedAt
@@ -137,6 +137,16 @@ export default function CheckOutListPage() {
       customer.token.toLowerCase().includes(q)
     );
   });
+
+  // Calculate Days Function
+  const calculateDays = (checkInTime, checkOutTime) => {
+    const inTime = new Date(checkInTime);
+    const outTime = new Date(checkOutTime);
+    const diffMs = outTime.getTime() - inTime.getTime();
+    if (diffMs <= 0) return 1; // minimum 1 day
+    const hours = diffMs / (1000 * 60 * 60);
+    return Math.ceil(hours / 24);
+  };
 
   if (loading) {
     return (
@@ -174,7 +184,7 @@ export default function CheckOutListPage() {
             placeholder="Search by name, phone, token, or time..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white backdrop-blur-sm rounded-full text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-gray-200"
+            className="w-full pl-12 pr-4 py-3.5 bg-white rounded-full text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-gray-200"
           />
         </div>
 
