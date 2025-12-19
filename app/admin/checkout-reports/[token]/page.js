@@ -16,7 +16,6 @@ const formatDateTime = (date) => {
   return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
 
-
 export default function CheckInReport() {
   const { token } = useParams();
   const [formData, setFormData] = useState({
@@ -44,7 +43,7 @@ export default function CheckInReport() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCheckin = async () => {
@@ -58,7 +57,6 @@ export default function CheckInReport() {
         }
         const checkin = await response.json();
         
-        // Format checkInTime
         const formattedTime = formatDateTime(checkin.checkInTime);
         
         setFormData({
@@ -168,10 +166,8 @@ export default function CheckInReport() {
         throw new Error(errData.message || 'Failed to update');
       }
 
-      const updated = await response.json();
-      console.log('Updated successfully:', updated);
       alert('Check-in updated successfully!');
-      router.push('/admin/checkout-reports');
+      router.push('/admin/checkin-reports');
     } catch (err) {
       console.error('Error updating:', err);
       setError(err.message);
@@ -182,212 +178,223 @@ export default function CheckInReport() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <p className="text-gray-600 text-lg">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ">
-      <div className="w-full max-w-5xl bg-white backdrop-blur-md rounded-2xl shadow-xl p-8 border border-gray-200">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-left border-b border-gray-200 pb-2">Edit Report</h1>
-        
-        {/* Error Display */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="p-6 sm:p-8 lg:p-10">
+            {/* Header */}
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 pb-4 border-b border-gray-200">
+              Edit Check-in Report
+            </h1>
 
-        {/* Form Grid */}
-        <div className="space-y-4">
-          {/* Row 1 - Check In Time & Token No */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Check In Time
-              </label>
-              <input
-                type="text"
-                value={formData.checkInTime}
-                readOnly
-                placeholder="Auto-generated"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Token No
-              </label>
-              <input
-                type="text"
-                value={formData.tokenNo}
-                readOnly
-                placeholder="From URL"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-          </div>
-          {/* Row 2 - Passenger Mobile & Name */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Passenger Mobile
-              </label>
-              <input
-                type="tel"
-                value={formData.passengerMobile}
-                onChange={(e) => handleInputChange('passengerMobile', e.target.value)}
-                placeholder="Enter mobile number"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Passenger Name
-              </label>
-              <input
-                type="text"
-                value={formData.passengerName}
-                onChange={(e) => handleInputChange('passengerName', e.target.value)}
-                placeholder="Enter full name"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-          </div>
-          {/* Row 3 - PNR & Aadhar Number */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                PNR Number
-              </label>
-              <input
-                type="text"
-                value={formData.pnrNumber}
-                onChange={(e) => handleInputChange('pnrNumber', e.target.value.toUpperCase())}
-                placeholder="Enter PNR"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Aadhar Number
-              </label>
-              <input
-                type="text"
-                value={formData.aadharNumber}
-                onChange={(e) => handleInputChange('aadharNumber', e.target.value)}
-                placeholder="Enter Aadhar (12 digits)"
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              />
-            </div>
-          </div>
-          {/* Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                Status
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-800 placeholder-gray-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200"
-              >
-                <option value="checkedIn">Checked In</option>
-                <option value="checkedOut">Checked Out</option>
-              </select>
-            </div>
-          </div>
-          {/* Luggage Type Section */}
-          <div className="pt-2">
-            <h2 className="text-gray-800 text-lg font-bold mb-4">Luggage Details</h2>
-           
-            {/* Luggage Type Headers & Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-              {luggageTypes.map((type) => (
-                <div key={type.key} className="space-y-2">
-                  <label className="block text-gray-700 text-xs font-semibold">
-                    {type.label}
+            {/* Error */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-8">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Check In Time
                   </label>
                   <input
                     type="text"
-                    min="0"
-                    value={formData.luggage[type.key]}
-                    onChange={(e) => handleLuggageChange(type.key, e.target.value)}
-                    placeholder="0"
-                    className="w-full px-3 py-2 bg-gray-50 rounded-lg text-gray-800 placeholder-gray-500 font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200 text-sm"
+                    value={formData.checkInTime}
+                    readOnly
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 font-medium focus:outline-none"
                   />
                 </div>
-              ))}
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-xs font-semibold">
-                  Total Units
-                </label>
-                <input
-                  type="text"
-                  value={getTotalUnits()}
-                  readOnly
-                  className="w-full px-3 py-2 bg-gray-50 rounded-lg text-gray-800 font-bold text-center focus:outline-none border border-gray-200 text-sm"
-                />
-              </div>
-            </div>
-            {/* Rate Section */}
-            <div className="mb-4">
-              <h3 className="text-gray-700 text-sm font-semibold mb-2">Rate (₹)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {luggageTypes.map((type) => (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Token No
+                  </label>
                   <input
-                    key={`rate-${type.key}`}
                     type="text"
-                    value={type.rate}
+                    value={formData.tokenNo}
                     readOnly
-                    className="w-full px-3 py-2 bg-gray-50 rounded-lg text-gray-800 font-bold text-center focus:outline-none border border-gray-200 text-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-800 font-medium focus:outline-none"
                   />
-                ))}
-                <div></div>
+                </div>
               </div>
-            </div>
-            {/* Amount Section */}
-            <div>
-              <h3 className="text-gray-700 text-sm font-semibold mb-2">Amount (₹)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {luggageTypes.map((type) => (
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Passenger Mobile
+                  </label>
                   <input
-                    key={`amount-${type.key}`}
-                    type="text"
-                    min="0"
-                    step="0.01"
-                    value={formData.amount[`${type.key}Amount`]}
-                    onChange={(e) => handleAmountChange(`${type.key}Amount`, e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 rounded-lg text-gray-800 font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-gray-200 text-sm"
+                    type="tel"
+                    value={formData.passengerMobile}
+                    onChange={(e) => handleInputChange('passengerMobile', e.target.value)}
+                    placeholder="Enter mobile number"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
-                ))}
-                <input
-                  type="text"
-                  value={formData.amount.totalAmount.toFixed(2)}
-                  readOnly
-                  className="w-full px-3 py-2 bg-blue-50 rounded-lg text-blue-600 font-bold text-center focus:outline-none border border-blue-200 text-sm"
-                />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Passenger Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.passengerName}
+                    onChange={(e) => handleInputChange('passengerName', e.target.value)}
+                    placeholder="Enter full name"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PNR Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.pnrNumber}
+                    onChange={(e) => handleInputChange('pnrNumber', e.target.value.toUpperCase())}
+                    placeholder="Enter PNR"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Aadhar Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.aadharNumber}
+                    onChange={(e) => handleInputChange('aadharNumber', e.target.value)}
+                    placeholder="Enter Aadhar (12 digits)"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  >
+                    <option value="checkedIn">Checked In</option>
+                    <option value="checkedOut">Checked Out</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Luggage Section */}
+              <div className="pt-6 border-t border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Luggage Details</h2>
+
+                {/* Responsive Luggage Table */}
+                <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-lg border border-gray-200">
+                  <div className="inline-block min-w-full align-middle">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Type
+                          </th>
+                          {luggageTypes.map((type) => (
+                            <th key={type.key} className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              {type.label}
+                            </th>
+                          ))}
+                          <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Total Units
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Units
+                          </td>
+                          {luggageTypes.map((type) => (
+                            <td key={type.key} className="px-4 py-4">
+                              <input
+                                type="number"
+                                min="0"
+                                value={formData.luggage[type.key]}
+                                onChange={(e) => handleLuggageChange(type.key, e.target.value)}
+                                className="w-full md:px-3 py-2 text-center border rota45 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                              />
+                            </td>
+                          ))}
+                          <td className="px-4 py-4 text-center font-bold text-gray-900">
+                            {getTotalUnits()}
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="px-4 py-3 text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Rate (₹)
+                          </td>
+                          {luggageTypes.map((type) => (
+                            <td key={`rate-${type.key}`} className="px-4 py-3 text-center font-semibold text-gray-800">
+                              {type.rate}
+                            </td>
+                          ))}
+                          <td className="px-4 py-3"></td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Amount (₹)
+                          </td>
+                          {luggageTypes.map((type) => (
+                            <td key={`amount-${type.key}`} className="px-4 py-4">
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={formData.amount[`${type.key}Amount`]}
+                                onChange={(e) => handleAmountChange(`${type.key}Amount`, e.target.value)}
+                                className="w-full md:px-3 py-2 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                              />
+                            </td>
+                          ))}
+                          <td className="px-4 py-4 text-center font-bold text-blue-600 bg-blue-50 rounded-lg">
+                            {formData.amount.totalAmount.toFixed(2)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row-reverse gap-4 pt-8 border-t border-gray-200">
+                <button
+                  onClick={handleUpdate}
+                  disabled={saving}
+                  className="w-full sm:w-auto px-8 py-3.5 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Saving...' : 'Update'}
+                </button>
+                <button
+                  onClick={() => window.history.back()}
+                  className="w-full sm:w-auto px-8 py-3.5 bg-gray-200 text-gray-800 font-semibold rounded-xl hover:bg-gray-300 transition"
+                >
+                  Back
+                </button>
               </div>
             </div>
-          </div>
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-2">
-            <button 
-              className="px-6 py-3 cursor-pointer bg-gray-200 border border-gray-300 text-gray-800 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-              onClick={() => window.history.back()}
-            >
-              Back
-            </button>
-            <button 
-              onClick={handleUpdate}
-              disabled={saving}
-              className="px-6 py-3 cursor-pointer bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? 'Saving...' : 'Update'}
-            </button>
           </div>
         </div>
       </div>
