@@ -159,7 +159,7 @@ export default function AdminSidebar({ children }) {
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-linear-to-r from-blue-600 to-blue-500 text-white z-50 shadow-lg print:hidden border-t border-white/20">
         <div className="flex items-center justify-around px-2 py-3">
-          {allNavItems.slice(0, 4).map((item) => (
+          {allNavItems.slice(0, 5).map((item) => (
             <Link
               key={item.name}
               href={item.href}
