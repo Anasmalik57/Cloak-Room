@@ -119,7 +119,7 @@ export default function CheckInListPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1  flex items-center justify-center">
         <p className="text-gray-600">Loading check-ins...</p>
       </div>
     );
@@ -127,7 +127,7 @@ export default function CheckInListPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1  flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
@@ -142,7 +142,7 @@ export default function CheckInListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1 ml-64 print:ml-0">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-8 flex-1  print:ml-0">
       {/* Top Filter Bar */}
       <div className="mb-8 flex items-center gap-4 print:hidden">
         {/* Search Bar */}

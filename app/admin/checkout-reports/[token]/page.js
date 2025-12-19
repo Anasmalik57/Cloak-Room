@@ -182,14 +182,14 @@ export default function CheckInReport() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ml-64">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ">
         <p className="text-gray-600">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ml-64">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-6 flex items-center justify-center flex-1 ">
       <div className="w-full max-w-5xl bg-white backdrop-blur-md rounded-2xl shadow-xl p-8 border border-gray-200">
         {/* Header */}
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-left border-b border-gray-200 pb-2">Edit Report</h1>

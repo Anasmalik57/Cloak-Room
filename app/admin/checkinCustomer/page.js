@@ -160,7 +160,7 @@ export default function CheckInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-gray-800 to-slate-900 p-6 flex items-center justify-center flex-1 ml-64">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-gray-800 to-slate-900 p-6 flex items-center justify-center flex-1 ">
       <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
         {/* Header */}
         <h1 className="text-3xl font-bold text-white mb-8 text-left border-b border-amber-400/20 pb-2">Check In</h1>
