@@ -196,7 +196,7 @@ export default function CheckinReport() {
         </div>
       </div>
 
-      {/* <style jsx global>{`
+      <style jsx global>{`
         @media print {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           body * { visibility: hidden; }
@@ -205,7 +205,7 @@ export default function CheckinReport() {
           button { display: none !important; }
           .max-w-[80mm] { width: 80mm !important; max-width: 80mm !important; }
         }
-      `}</style> */}
+      `}</style> 
     </div>
   );
 }

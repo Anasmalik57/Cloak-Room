@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { API_BASE } from '@/lib/api';
-import Barcode from 'react-barcode';
 
 const formatDateTime = (date) => {
   const d = new Date(date);
@@ -94,160 +93,139 @@ export default function CheckoutReport() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 py-4 px-3 flex items-start justify-center print:items-start print:p-0">
-      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 print:shadow-none print:rounded-none print:border-none print:max-w-none">
+      <div className="w-full max-w-[80mm] bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 print:shadow-none print:rounded-none  print:max-w-[80mm] print:w-[80mm]">
         
         {/* Header */}
-        <div className="bg-linear-to-r from-orange-500 via-amber-500 to-orange-500 text-white px-4 py-2.5 print:bg-orange-600">
-          <h1 className="text-center font-bold text-xs tracking-widest">CLOAK ROOM RECEIPT</h1>
-          <p className="text-center text-[10px] opacity-95 mt-0.5">Token: {data.tokenNo}</p>
+        <div className="bg-linear-to-r from-orange-500 via-amber-500 to-orange-500 text-white px-4 py-3 print:bg-orange-600">
+          <h1 className="text-center font-bold text-sm tracking-widest">CLOAK ROOM RECEIPT</h1>
+          <p className="text-center text-xs opacity-95 mt-1">Token: {data.tokenNo}</p>
         </div>
 
-        {/* Content - Compact Grid Layout */}
-        <div className="p-3 print:p-2">
+        {/* Content - Single Column Layout for Print */}
+        <div className="p-4 print:p-3 space-y-4 print:space-y-2">
           
-          {/* Two Column Layout for Passenger & Timing */}
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            
-            {/* Passenger Info */}
-            <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-2 border border-gray-200">
-              <h2 className="text-[10px] font-bold text-gray-800 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <span className="w-1 h-3 bg-orange-500 rounded-full"></span>
-                Passenger
-              </h2>
-              <div className="space-y-0.5 text-[10px]">
-                <div className="flex justify-between gap-2">
-                  <span className="text-gray-500 font-medium">Name</span>
-                  <span className="font-semibold text-gray-800 text-right">{data.passengerName}</span>
-                </div>
-                <div className="flex justify-between gap-2">
-                  <span className="text-gray-500 font-medium">Mobile</span>
-                  <span className="font-semibold text-gray-800">+91 {data.passengerMobile}</span>
-                </div>
-                <div className="flex justify-between gap-2">
-                  <span className="text-gray-500 font-medium">PNR</span>
-                  <span className="font-semibold text-gray-800">{data.pnrNumber}</span>
-                </div>
-                <div className="flex justify-between gap-2">
-                  <span className="text-gray-500 font-medium">Aadhaar</span>
-                  <span className="font-semibold text-gray-800">{data.aadharNumber}</span>
-                </div>
+          {/* Passenger Info */}
+          <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200">
+            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 bg-orange-500 rounded-full"></span>
+              Passenger Details
+            </h2>
+            <div className="space-y-1.5 text-xs print:text-[10px]">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Name</span>
+                <span className="font-semibold text-gray-800">{data.passengerName}</span>
               </div>
-            </div>
-
-            {/* Timing Info */}
-            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-2 border border-blue-200">
-              <h2 className="text-[10px] font-bold text-gray-800 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <span className="w-1 h-3 bg-blue-500 rounded-full"></span>
-                Timing
-              </h2>
-              <div className="space-y-0.5 text-[9px]">
-                <div>
-                  <span className="text-gray-600 block mb-0.5">Check-in</span>
-                  <span className="font-semibold text-gray-800 block">{formatDateTime(data.checkInTime)}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600 block mb-0.5">Check-out</span>
-                  <span className="font-semibold text-gray-800 block">{formatDateTime(data.updatedAt)}</span>
-                </div>
-                <div className="pt-1 border-t border-blue-300 mt-1">
-                  <span className="text-gray-600 block mb-0.5">Duration</span>
-                  <span className="font-bold text-blue-700 text-[11px]">{duration}</span>
-                </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Mobile</span>
+                <span className="font-semibold text-gray-800">+91 {data.passengerMobile}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">PNR</span>
+                <span className="font-semibold text-gray-800">{data.pnrNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Aadhaar</span>
+                <span className="font-semibold text-gray-800">{data.aadharNumber}</span>
               </div>
             </div>
           </div>
 
-          {/* Luggage & Amount in Two Columns */}
-          <div className="grid grid-cols-2 gap-2">
-            
-            {/* Luggage */}
-            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-lg p-2 border border-purple-200">
-              <h2 className="text-[10px] font-bold text-gray-800 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <span className="w-1 h-3 bg-purple-500 rounded-full"></span>
-                Luggage
-              </h2>
-              <div className="space-y-0.5 text-[10px]">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">One Unit</span>
-                  <span className="font-semibold">{data.luggage.oneUnit}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Two Unit</span>
-                  <span className="font-semibold">{data.luggage.twoUnit}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Three Unit</span>
-                  <span className="font-semibold">{data.luggage.threeUnit}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Locker</span>
-                  <span className="font-semibold">{data.luggage.locker}</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-purple-300 mt-1">
-                  <span className="font-bold text-gray-800">Total</span>
-                  <span className="font-bold text-purple-700">{totalUnits}</span>
-                </div>
+          {/* Timing Info */}
+          <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
+            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+              Timing
+            </h2>
+            <div className="space-y-1.5 text-xs print:text-[10px]">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Check-in</span>
+                <span className="font-semibold text-gray-800">{formatDateTime(data.checkInTime)}</span>
               </div>
-            </div>
-
-            {/* Amount */}
-            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-lg p-2 border border-green-200">
-              <h2 className="text-[10px] font-bold text-gray-800 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <span className="w-1 h-3 bg-green-500 rounded-full"></span>
-                Amount
-              </h2>
-              <div className="space-y-0.5 text-[10px]">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">One Unit</span>
-                  <span className="font-semibold">₹{data.amount.oneUnitAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Two Unit</span>
-                  <span className="font-semibold">₹{data.amount.twoUnitAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Three Unit</span>
-                  <span className="font-semibold">₹{data.amount.threeUnitAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Locker</span>
-                  <span className="font-semibold">₹{data.amount.lockerAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t-2 border-green-400 mt-1">
-                  <span className="font-bold text-gray-800">Total</span>
-                  <span className="font-bold text-green-700 text-xs">₹{data.amount.totalAmount.toFixed(2)}</span>
-                </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Check-out</span>
+                <span className="font-semibold text-gray-800">{formatDateTime(data.updatedAt)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-blue-300">
+                <span className="text-gray-700 font-medium">Duration</span>
+                <span className="font-bold text-blue-700 text-sm print:text-[10px]">{duration}</span>
               </div>
             </div>
           </div>
-{/* Barcode Section */}
-<div className="flex justify-center mt-3 print:mt-2">
-  <div className="bg-white p-2 border border-gray-300 rounded">
-    <Barcode
-      value={window.location.href}
-      width={1.5}
-      height={45}
-      fontSize={10}
-      margin={0}
-      displayValue={true}
-    />
-  </div>
-</div>
+
+          {/* Luggage */}
+          <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
+            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+              Luggage
+            </h2>
+            <div className="space-y-1.5 text-xs print:text-[10px]">
+              <div className="flex justify-between">
+                <span className="text-gray-600">One Unit</span>
+                <span className="font-semibold">{data.luggage.oneUnit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Two Unit</span>
+                <span className="font-semibold">{data.luggage.twoUnit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Three Unit</span>
+                <span className="font-semibold">{data.luggage.threeUnit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Locker</span>
+                <span className="font-semibold">{data.luggage.locker}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-purple-300">
+                <span className="font-bold text-gray-800">Total Units</span>
+                <span className="font-bold text-purple-700 text-sm print:text-[10px]">{totalUnits}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div className="bg-linear-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+              Amount
+            </h2>
+            <div className="space-y-1.5 text-xs print:text-[10px]">
+              <div className="flex justify-between">
+                <span className="text-gray-600">One Unit</span>
+                <span className="font-semibold">₹{data.amount.oneUnitAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Two Unit</span>
+                <span className="font-semibold">₹{data.amount.twoUnitAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Three Unit</span>
+                <span className="font-semibold">₹{data.amount.threeUnitAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Locker</span>
+                <span className="font-semibold">₹{data.amount.lockerAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t-2 border-green-400">
+                <span className="font-bold text-gray-800">Total Amount</span>
+                <span className="font-bold text-green-700 text-base print:text-[10px]">₹{data.amount.totalAmount.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
 
           {/* Footer */}
-          <div className="text-center text-[9px] text-gray-500 pt-2 mt-2 border-t border-gray-200">
-            <p className="font-semibold text-gray-700">Thank you for choosing us!</p>
-            <p className="mt-0.5">Generated: {new Date().toLocaleDateString()}</p>
+          <div className="text-center text-xs text-gray-600 pt-3 border-t border-gray-300">
+            <p className="font-bold text-gray-800">Thank you for choosing us!</p>
+            <p className="mt-1">Generated: {new Date().toLocaleDateString()}</p>
           </div>
         </div>
 
-        {/* Print Button */}
-        <div className="print:hidden px-3 pb-3">
+        {/* Print Button - Hidden on Print */}
+        <div className="print:hidden px-4 pb-4">
           <button 
             onClick={handlePrint}
-            className="w-full py-4 cursor-pointer bg-linear-to-r from-red-600 to-amber-600 text-white rounded-lg font-semibold text-sm hover:rose-green-700 hover:to-amber-700 transition-all duration-300 ease-in shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full py-4 bg-linear-to-r from-red-600 to-amber-600 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
           >
-             Print Receipt
+            Print Receipt
           </button>
         </div>
       </div>
@@ -257,8 +235,20 @@ export default function CheckoutReport() {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           body * { visibility: hidden; }
           .min-h-screen, .min-h-screen * { visibility: visible; }
-          .min-h-screen { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+          .min-h-screen { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 80mm; 
+            margin: 0; 
+            padding: 0; 
+            background: white;
+          }
           button { display: none !important; }
+          .max-w-[80mm] { 
+            width: 80mm !important; 
+            max-width: 80mm !important; 
+          }
         }
       `}</style>
     </div>
