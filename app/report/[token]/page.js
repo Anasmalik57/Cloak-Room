@@ -96,9 +96,9 @@ export default function CheckoutReport() {
       <div className="w-full max-w-[80mm] bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 print:shadow-none print:rounded-none  print:max-w-[80mm] print:w-[80mm]">
         
         {/* Header */}
-        <div className="bg-linear-to-r from-orange-500 via-amber-500 to-orange-500 text-white px-4 py-3 print:bg-orange-600">
-          <h1 className="text-center font-bold text-sm tracking-widest">CLOAK ROOM RECEIPT</h1>
-          <p className="text-center text-xs opacity-95 mt-1">Token: {data.tokenNo}</p>
+        <div className="bg-linear-to-r from-orange-500 via-amber-500 to-orange-500 text-white px-4 py-3 print:py-2 print:bg-orange-600">
+          <h1 className="text-center font-bold text-sm print:text-xs tracking-widest">CLOAK ROOM RECEIPT</h1>
+          <p className="text-center text-xs print:text-[10px] opacity-95 mt-1 print:mt-0.5">Token: {data.tokenNo}</p>
         </div>
 
         {/* Content - Single Column Layout for Print */}
@@ -106,8 +106,8 @@ export default function CheckoutReport() {
           
           {/* Passenger Info */}
           <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200">
-            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
-              <span className="w-1 h-4 bg-orange-500 rounded-full"></span>
+            <h2 className="text-xs print:text-[10px] font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 print:h-3.5 bg-orange-500 rounded-full"></span>
               Passenger Details
             </h2>
             <div className="space-y-1.5 text-xs print:text-[10px]">
@@ -132,8 +132,8 @@ export default function CheckoutReport() {
 
           {/* Timing Info */}
           <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
-            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
-              <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+            <h2 className="text-xs print:text-[10px] font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 print:h-3.5 bg-blue-500 rounded-full"></span>
               Timing
             </h2>
             <div className="space-y-1.5 text-xs print:text-[10px]">
@@ -154,8 +154,8 @@ export default function CheckoutReport() {
 
           {/* Luggage */}
           <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
-            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
-              <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+            <h2 className="text-xs print:text-[10px] font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 print:h-3.5 bg-purple-500 rounded-full"></span>
               Luggage
             </h2>
             <div className="space-y-1.5 text-xs print:text-[10px]">
@@ -184,8 +184,8 @@ export default function CheckoutReport() {
 
           {/* Amount */}
           <div className="bg-linear-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-            <h2 className="text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
-              <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+            <h2 className="text-xs print:text-[10px] font-bold text-gray-800 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <span className="w-1 h-4 print:h-3.5 bg-green-500 rounded-full"></span>
               Amount
             </h2>
             <div className="space-y-1.5 text-xs print:text-[10px]">
@@ -213,7 +213,7 @@ export default function CheckoutReport() {
           </div>
 
           {/* Footer */}
-          <div className="text-center text-xs text-gray-600 pt-3 border-t border-gray-300">
+          <div className="text-center text-xs print:text-[10px] text-gray-600 pt-3 border-t border-gray-300">
             <p className="font-bold text-gray-800">Thank you for choosing us!</p>
             <p className="mt-1">Generated: {new Date().toLocaleDateString()}</p>
           </div>
