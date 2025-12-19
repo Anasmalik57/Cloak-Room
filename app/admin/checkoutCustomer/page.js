@@ -88,7 +88,8 @@ export default function CheckOutForm() {
       (record) =>
         record.tokenNo.includes(searchQuery) ||
         record.pnrNumber.includes(searchQuery) ||
-        record.passengerName.toLowerCase().includes(searchQuery.toLowerCase())
+        record.passengerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.passengerMobile.includes(searchQuery)
     );
 
     if (matchedRecord) {
@@ -196,7 +197,36 @@ export default function CheckOutForm() {
         setError('');
       }
     }
-  }, [formData.tokenNo, formData.pnrNumber, formData.passengerName, records]);
+
+      // Auto-populate on passengerMobile change
+  if (
+    formData.passengerMobile &&
+    records.some((r) => r.passengerMobile === formData.passengerMobile)
+  ) {
+    const matched = records.find(
+      (r) => r.passengerMobile === formData.passengerMobile
+    );
+    if (
+      matched &&
+      (formData.tokenNo === "" ||
+       formData.passengerName === "" ||
+       formData.pnrNumber === "" ||
+       formData.checkInTime === "")
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        tokenNo: matched.tokenNo,
+        passengerName: matched.passengerName,
+        pnrNumber: matched.pnrNumber,
+        checkInTime: matched.checkInTime,
+        luggage: { ...matched.luggage },
+      }));
+      setIsPopulated(true);
+      setError('');
+    }
+  }
+
+  }, [formData.tokenNo, formData.pnrNumber, formData.passengerName, formData.passengerMobile, records]);
 
   const calculateBaseTotal = () => {
     return luggageTypes.reduce((total, type) => {
