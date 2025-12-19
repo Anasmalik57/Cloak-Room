@@ -1,7 +1,11 @@
+"use client"
 import React from 'react';
 import { Luggage, ShieldCheck, Clock, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter()
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-orange-50 flex flex-col lg:flex-row">
       {/* Left side - Content */}
@@ -41,12 +45,12 @@ export default function HomePage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button className="group bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-4 *:cursor-pointer">
+            <button onClick={()=> router.push("/auth/login")} className="group bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2">
               <Luggage className="w-5 h-5" />
               Check-In Luggage
             </button>
-            <button className="border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-8 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all hover:shadow-md flex items-center justify-center gap-2">
+            <button onClick={()=> router.push("/auth/login")} className="border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-8 py-4 rounded-xl font-semibold text-base sm:text-lg transition-all hover:shadow-md flex items-center justify-center gap-2">
               Check-Out Luggage
             </button>
           </div>

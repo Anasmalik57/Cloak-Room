@@ -1,6 +1,7 @@
 "use client"
 import { API_BASE } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { showToast } from 'nextjs-toast-notify';
 import React, { useState, useEffect } from 'react';
 
 const luggageTypes = [
@@ -134,8 +135,16 @@ export default function CheckInForm() {
       }
 
       const savedData = await response.json();
-      console.log('Check-in saved successfully:', savedData);
-      alert('Check-in data saved successfully!');
+      // console.log('Check-in saved successfully:', savedData);
+      // alert('Check-in data saved successfully!');
+      showToast.success("Check-in data saved successfully!", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
       router.push(`/checkin-reciepts/${savedData.tokenNo}`);
       
       // Optional: Reset form or update token for next

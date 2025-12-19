@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Edit2, Trash2, PrinterIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
+import { showToast } from "nextjs-toast-notify";
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -145,7 +146,15 @@ export default function CheckOutListPage() {
       setData(mappedData);
     } catch (err) {
       console.error("Error deleting checkout:", err);
-      alert("Failed to delete checkout");
+      // alert("Failed to delete checkout");
+      showToast.error("Failed to delete checkout", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
     }
   };
 

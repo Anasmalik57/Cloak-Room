@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
+import { showToast } from "nextjs-toast-notify";
 
 const luggageTypes = [
   { label: "One Unit", rate: 30, key: "oneUnit" },
@@ -335,7 +336,15 @@ export default function CheckOutForm() {
 
       const updated = await response.json();
       console.log('Checkout updated successfully:', updated);
-      alert("Check-out data updated successfully!");
+      // alert("Check-out data updated successfully!");
+      showToast.success("Check-out data updated successfully!", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
       // router.push("/admin/checkout-reports")
       router.push(`/report/${updated.tokenNo}`)
 

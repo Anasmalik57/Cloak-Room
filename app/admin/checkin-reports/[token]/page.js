@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { API_BASE } from '@/lib/api';
+import { showToast } from 'nextjs-toast-notify';
 
 const luggageTypes = [
   { label: 'One Unit', rate: 30, key: 'oneUnit' },
@@ -166,7 +167,15 @@ export default function CheckInReport() {
         throw new Error(errData.message || 'Failed to update');
       }
 
-      alert('Check-in updated successfully!');
+      // alert('Check-in updated successfully!');
+      showToast.success("Check-in updated successfully!", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
       router.push('/admin/checkin-reports');
     } catch (err) {
       console.error('Error updating:', err);

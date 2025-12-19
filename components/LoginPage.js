@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation'; // Assuming Next.js App Router; adjust if Pages Router
 import { User, Lock, LogIn, Fingerprint } from 'lucide-react';
+import { showToast } from 'nextjs-toast-notify';
 
 const images = [
   { colSpan: 7, rowSpan: 7, rounded: '3xl', shadow: '2xl', src: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800&q=80', alt: 'Train station platform' },
@@ -28,10 +29,26 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (formData.username === 'admin@mail.com' && formData.password === 'adminpass@57') {
-      alert('Login Successful!');
+      // alert('Login Successful!');
+      showToast.success("Login Successful!", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
       router.push('/admin/dashboard');
     } else {
-      alert('Invalid Email or Password');
+      // alert('Invalid Email or Password');
+      showToast.error("Invalid Email or Password", {
+        duration: 4000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceInDown",
+        icon: '',
+        sound: true,
+      });
     }
   };
 
