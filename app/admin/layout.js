@@ -170,7 +170,7 @@ export default function AdminSidebar({ children }) {
               }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
-              <span className="text-[10px] font-medium text-center leading-tight max-w-[60px]">
+              <span className="text-[10px] font-medium text-center leading-tight max-w-15">
                 {item.name.split(' ').slice(0, 2).join(' ')}
               </span>
             </Link>

@@ -352,38 +352,38 @@ export default function CheckOutForm() {
   const multiplier = getMultiplier();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-gray-800 to-slate-900 p-6 flex items-center justify-center flex-1 ">
-      <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-gray-800 to-slate-900 p-3 sm:p-4 md:p-6 flex items-center justify-center flex-1">
+      <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20">
         {/* Header with Search */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Check Out</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Check Out</h1>
 
           {/* Search Bar */}
-          <div className="relative w-80">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Search by Token, PNR, or Name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/5 rounded-full text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+              className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white/5 rounded-full text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
             />
           </div>
         </div>
 
         {/* Error Display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-xs sm:text-sm">
             {error}
           </div>
         )}
 
         {/* Form Grid */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Row 1 - Check Out Time & Token No */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Check Out Time
               </label>
               <input
@@ -391,11 +391,11 @@ export default function CheckOutForm() {
                 value={formData.checkOutTime}
                 readOnly
                 placeholder="Auto-generated"
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Token No
               </label>
               <input
@@ -403,15 +403,15 @@ export default function CheckOutForm() {
                 value={formData.tokenNo}
                 onChange={(e) => handleInputChange("tokenNo", e.target.value)}
                 placeholder="Enter Token No"
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
           </div>
 
           {/* Row 2 - Passenger Name & Mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Passenger Name
               </label>
               <input
@@ -422,11 +422,11 @@ export default function CheckOutForm() {
                 }
                 placeholder="Enter full name"
                 readOnly={isPopulated}
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Passenger Mobile
               </label>
               <input
@@ -437,15 +437,15 @@ export default function CheckOutForm() {
                 }
                 placeholder="Enter mobile number"
                 readOnly={isPopulated}
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
           </div>
 
           {/* Row 3 - PNR Number & Check In Time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 PNR Number
               </label>
               <input
@@ -454,11 +454,11 @@ export default function CheckOutForm() {
                 onChange={(e) => handleInputChange("pnrNumber", e.target.value)}
                 placeholder="Enter PNR"
                 readOnly={isPopulated}
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
             <div>
-              <label className="block text-gray-300 text-sm font-semibold mb-2">
+              <label className="block text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Check In Time
               </label>
               <input
@@ -466,19 +466,19 @@ export default function CheckOutForm() {
                 value={formData.checkInTime}
                 readOnly
                 placeholder="MM/DD/YYYY HH:MM:SS"
-                className="w-full px-4 py-3 bg-white/5 rounded-xl text-white placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
           </div>
 
           {/* Luggage Type Section */}
-          <div className="pt-4">
-            <h2 className="text-white text-lg font-bold mb-4">
+          <div className="pt-2 sm:pt-4">
+            <h2 className="text-white text-base sm:text-lg font-bold mb-3 sm:mb-4">
               Luggage Details
             </h2>
 
             {/* Luggage Type Headers & Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-3 sm:mb-4">
               {luggageTypes.map((type) => (
                 <div key={type.key} className="space-y-2">
                   <label className="block text-gray-300 text-xs font-semibold">
@@ -493,7 +493,7 @@ export default function CheckOutForm() {
                     }
                     placeholder="0"
                     readOnly={isPopulated}
-                    className="w-full px-3 py-2 bg-white/5 rounded-lg text-white placeholder-gray-400 font-bold text-center focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10 text-sm"
+                    className="w-full px-2 sm:px-3 py-2 bg-white/5 rounded-lg text-white placeholder-gray-400 font-bold text-center focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10 text-xs sm:text-sm"
                   />
                 </div>
               ))}
@@ -505,34 +505,36 @@ export default function CheckOutForm() {
                   type="text"
                   value={getTotalUnits()}
                   readOnly
-                  className="w-full px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-sm"
+                  className="w-full px-2 sm:px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-xs sm:text-sm"
                 />
               </div>
             </div>
+            
             {/* Rate Section */}
-            <div className="mb-4">
-              <h3 className="text-gray-300 text-sm font-semibold mb-2">
+            <div className="mb-3 sm:mb-4">
+              <h3 className="text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Rate (₹)
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                 {luggageTypes.map((type) => (
                   <input
                     key={`rate-${type.key}`}
                     type="text"
                     value={type.rate}
                     readOnly
-                    className="w-full px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-sm"
+                    className="w-full px-2 sm:px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-xs sm:text-sm"
                   />
                 ))}
                 <div></div>
               </div>
             </div>
+            
             {/* Amount Section */}
             <div>
-              <h3 className="text-gray-300 text-sm font-semibold mb-2">
+              <h3 className="text-gray-300 text-xs sm:text-sm font-semibold mb-2">
                 Amount (₹) {multiplier > 1 && `(x${multiplier})`}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                 {luggageTypes.map((type) => (
                   <input
                     key={`amount-${type.key}`}
@@ -543,32 +545,32 @@ export default function CheckOutForm() {
                       multiplier
                     ).toFixed(0)}
                     readOnly
-                    className="w-full px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-sm"
+                    className="w-full px-2 sm:px-3 py-2 bg-white/5 rounded-lg text-white font-bold text-center focus:outline-none border border-white/10 text-xs sm:text-sm"
                   />
                 ))}
                 <input
                   type="text"
                   value={calculateTotal().toFixed(0)}
                   readOnly
-                  className="w-full px-3 py-2 bg-orange-500/20 rounded-lg text-orange-300 font-bold text-center focus:outline-none border border-orange-500/30 text-sm"
+                  className="w-full px-2 sm:px-3 py-2 bg-orange-500/20 rounded-lg text-orange-300 font-bold text-center focus:outline-none border border-orange-500/30 text-xs sm:text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">
             <button
               onClick={handleCancel}
               disabled={loading}
-              className="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-white/10 border border-white/20 text-white rounded-xl text-sm sm:text-base font-semibold hover:bg-white/20 transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleUpdate}
               disabled={loading}
-              className="px-6 py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Updating...' : 'Update'}
             </button>
@@ -576,7 +578,7 @@ export default function CheckOutForm() {
 
           {/* Footer Hint */}
           {hours > 0 && (
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs sm:text-sm">
               Total duration: {hours.toFixed(2)} hours (Charged as {multiplier}{" "}
               days)
             </p>
