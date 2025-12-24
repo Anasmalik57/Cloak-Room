@@ -12,15 +12,12 @@ const luggageTypes = [
   { label: "Locker", rate: 60, key: "locker" },
 ];
 
-
 const formatDateTime = (date) => {
   const d = new Date(date);
   const pad = (num) => num.toString().padStart(2, "0");
-  return `${pad(d.getMonth() + 1)}/${pad(
-    d.getDate()
-  )}/${d.getFullYear()} ${pad(d.getHours())}:${pad(
-    d.getMinutes()
-  )}:${pad(d.getSeconds())}`;
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
 
 export default function CheckOutForm() {
@@ -42,7 +39,7 @@ export default function CheckOutForm() {
   const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isPopulated, setIsPopulated] = useState(false);
   const router = useRouter();
 
@@ -59,11 +56,11 @@ export default function CheckOutForm() {
       try {
         const response = await fetch(`${API_BASE}/checkins`);
         if (!response.ok) {
-          throw new Error('Failed to fetch check-ins');
+          throw new Error("Failed to fetch check-ins");
         }
         const checkins = await response.json();
         const checkedInRecords = checkins
-          .filter((c) => c.status === 'checkedIn')
+          .filter((c) => c.status === "checkedIn")
           .map((c) => ({
             tokenNo: c.tokenNo,
             passengerName: c.passengerName,
@@ -74,7 +71,7 @@ export default function CheckOutForm() {
           }));
         setRecords(checkedInRecords);
       } catch (err) {
-        console.error('Error fetching records:', err);
+        console.error("Error fetching records:", err);
         setError(err.message);
       }
     };
@@ -89,7 +86,9 @@ export default function CheckOutForm() {
       (record) =>
         record.tokenNo.includes(searchQuery) ||
         record.pnrNumber.includes(searchQuery) ||
-        record.passengerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.passengerName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
         record.passengerMobile.includes(searchQuery)
     );
 
@@ -104,9 +103,9 @@ export default function CheckOutForm() {
         luggage: { ...matchedRecord.luggage },
       }));
       setIsPopulated(true);
-      setError('');
+      setError("");
     } else {
-      setError('No matching record found');
+      setError("No matching record found");
     }
   }, [searchQuery, records]);
 
@@ -122,9 +121,9 @@ export default function CheckOutForm() {
       if (
         matched &&
         (formData.passengerName === "" ||
-         formData.passengerMobile === "" ||
-         formData.pnrNumber === "" ||
-         formData.checkInTime === "")
+          formData.passengerMobile === "" ||
+          formData.pnrNumber === "" ||
+          formData.checkInTime === "")
       ) {
         setFormData((prev) => ({
           ...prev,
@@ -135,7 +134,7 @@ export default function CheckOutForm() {
           luggage: { ...matched.luggage },
         }));
         setIsPopulated(true);
-        setError('');
+        setError("");
       }
     }
 
@@ -144,15 +143,13 @@ export default function CheckOutForm() {
       formData.pnrNumber &&
       records.some((r) => r.pnrNumber === formData.pnrNumber)
     ) {
-      const matched = records.find(
-        (r) => r.pnrNumber === formData.pnrNumber
-      );
+      const matched = records.find((r) => r.pnrNumber === formData.pnrNumber);
       if (
         matched &&
         (formData.tokenNo === "" ||
-         formData.passengerName === "" ||
-         formData.passengerMobile === "" ||
-         formData.checkInTime === "")
+          formData.passengerName === "" ||
+          formData.passengerMobile === "" ||
+          formData.checkInTime === "")
       ) {
         setFormData((prev) => ({
           ...prev,
@@ -163,7 +160,7 @@ export default function CheckOutForm() {
           luggage: { ...matched.luggage },
         }));
         setIsPopulated(true);
-        setError('');
+        setError("");
       }
     }
 
@@ -182,9 +179,9 @@ export default function CheckOutForm() {
       if (
         matched &&
         (formData.tokenNo === "" ||
-         formData.pnrNumber === "" ||
-         formData.passengerMobile === "" ||
-         formData.checkInTime === "")
+          formData.pnrNumber === "" ||
+          formData.passengerMobile === "" ||
+          formData.checkInTime === "")
       ) {
         setFormData((prev) => ({
           ...prev,
@@ -195,39 +192,65 @@ export default function CheckOutForm() {
           luggage: { ...matched.luggage },
         }));
         setIsPopulated(true);
-        setError('');
+        setError("");
       }
     }
 
-      // Auto-populate on passengerMobile change
-  if (
-    formData.passengerMobile &&
-    records.some((r) => r.passengerMobile === formData.passengerMobile)
-  ) {
-    const matched = records.find(
-      (r) => r.passengerMobile === formData.passengerMobile
-    );
+    // Auto-populate on passengerMobile change
     if (
-      matched &&
-      (formData.tokenNo === "" ||
-       formData.passengerName === "" ||
-       formData.pnrNumber === "" ||
-       formData.checkInTime === "")
+      formData.passengerMobile &&
+      records.some((r) => r.passengerMobile === formData.passengerMobile)
     ) {
-      setFormData((prev) => ({
-        ...prev,
-        tokenNo: matched.tokenNo,
-        passengerName: matched.passengerName,
-        pnrNumber: matched.pnrNumber,
-        checkInTime: matched.checkInTime,
-        luggage: { ...matched.luggage },
-      }));
-      setIsPopulated(true);
-      setError('');
+      const matched = records.find(
+        (r) => r.passengerMobile === formData.passengerMobile
+      );
+      if (
+        matched &&
+        (formData.tokenNo === "" ||
+          formData.passengerName === "" ||
+          formData.pnrNumber === "" ||
+          formData.checkInTime === "")
+      ) {
+        setFormData((prev) => ({
+          ...prev,
+          tokenNo: matched.tokenNo,
+          passengerName: matched.passengerName,
+          pnrNumber: matched.pnrNumber,
+          checkInTime: matched.checkInTime,
+          luggage: { ...matched.luggage },
+        }));
+        setIsPopulated(true);
+        setError("");
+      }
     }
-  }
+  }, [
+    formData.tokenNo,
+    formData.pnrNumber,
+    formData.passengerName,
+    formData.passengerMobile,
+    records,
+  ]);
 
-  }, [formData.tokenNo, formData.pnrNumber, formData.passengerName, formData.passengerMobile, records]);
+  // ==========================================
+
+  const handleClear = () => {
+    setFormData({
+      checkOutTime: "",
+      tokenNo: "",
+      passengerName: "",
+      passengerMobile: "",
+      pnrNumber: "",
+      checkInTime: "",
+      luggage: {
+        oneUnit: 0,
+        twoUnit: 0,
+        threeUnit: 0,
+        locker: 0,
+      },
+    });
+  };
+
+  // ==========================================
 
   const calculateBaseTotal = () => {
     return luggageTypes.reduce((total, type) => {
@@ -238,10 +261,16 @@ export default function CheckOutForm() {
   const calculateHours = () => {
     if (!formData.checkInTime || !formData.checkOutTime) return 0;
     const inTime = new Date(
-      formData.checkInTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:$6')
+      formData.checkInTime.replace(
+        /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
+        "$3-$1-$2T$4:$5:$6"
+      )
     );
     const outTime = new Date(
-      formData.checkOutTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:$6')
+      formData.checkOutTime.replace(
+        /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
+        "$3-$1-$2T$4:$5:$6"
+      )
     );
     const diffMs = outTime.getTime() - inTime.getTime();
     return diffMs > 0 ? diffMs / (1000 * 60 * 60) : 0;
@@ -273,7 +302,7 @@ export default function CheckOutForm() {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsPopulated(false); // Allow repopulate
-    setError('');
+    setError("");
   };
 
   const handleCancel = () => {
@@ -294,23 +323,23 @@ export default function CheckOutForm() {
     });
     setSearchQuery("");
     setIsPopulated(false);
-    setError('');
+    setError("");
   };
 
   const handleUpdate = async () => {
     if (!formData.tokenNo || getTotalUnits() === 0) {
-      setError('Token and luggage required');
+      setError("Token and luggage required");
       return;
     }
 
     const multiplier = getMultiplier();
     if (multiplier === 0) {
-      setError('Invalid check-in time');
+      setError("Invalid check-in time");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const finalAmount = {
@@ -321,36 +350,39 @@ export default function CheckOutForm() {
         totalAmount: calculateTotal(),
       };
 
-      const response = await fetch(`${API_BASE}/checkouts/token/${formData.tokenNo}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: finalAmount }),
-      });
+      const response = await fetch(
+        `${API_BASE}/checkouts/token/${formData.tokenNo}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount: finalAmount }),
+        }
+      );
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || 'Failed to update checkout');
+        throw new Error(errData.message || "Failed to update checkout");
       }
 
       const updated = await response.json();
-      console.log('Checkout updated successfully:', updated);
+      console.log("Checkout updated successfully:", updated);
       // alert("Check-out data updated successfully!");
       showToast.success("Check-out data updated successfully!", {
         duration: 4000,
         progress: true,
         position: "top-right",
         transition: "bounceInDown",
-        icon: '',
+        icon: "",
         sound: true,
       });
       // router.push("/admin/checkout-reports")
-      router.push(`/report/${updated.tokenNo}`)
+      router.push(`/report/${updated.tokenNo}`);
 
       handleCancel();
     } catch (err) {
-      console.error('Error updating checkout:', err);
+      console.error("Error updating checkout:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -364,11 +396,13 @@ export default function CheckOutForm() {
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-gray-800 to-slate-900 p-3 sm:p-4 md:p-6 flex items-center justify-center flex-1">
       <div className="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20">
         {/* Header with Search */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Check Out</h1>
+        <div className=" relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+            Check Out
+          </h1>
 
           {/* Search Bar */}
-          <div className="relative w-full sm:w-80">
+          <div className={`relative w-full sm:w-80 ${formData.tokenNo.length <= 2 ? "md:translate-x-0": "md:-translate-x-20"} `}>
             <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
@@ -378,6 +412,14 @@ export default function CheckOutForm() {
               className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white/5 rounded-full text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
             />
           </div>
+          {formData?.tokenNo.length >= 2 && (
+            <button
+              onClick={() => handleClear()}
+              className=" cursor-pointer absolute top-1 right-0  rounded-full p-4 py-2 text-white bg-red-500  "
+            >
+              Clear
+            </button>
+          )}
         </div>
 
         {/* Error Display */}
@@ -520,7 +562,7 @@ export default function CheckOutForm() {
                 />
               </div>
             </div>
-            
+
             {/* Rate Section */}
             <div className="mb-3 sm:mb-4">
               <h3 className="text-gray-300 text-xs sm:text-sm font-semibold mb-2">
@@ -539,7 +581,7 @@ export default function CheckOutForm() {
                 <div></div>
               </div>
             </div>
-            
+
             {/* Amount Section */}
             <div>
               <h3 className="text-gray-300 text-xs sm:text-sm font-semibold mb-2">
@@ -583,7 +625,7 @@ export default function CheckOutForm() {
               disabled={loading}
               className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Updating...' : 'Update'}
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
 
