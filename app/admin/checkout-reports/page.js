@@ -59,6 +59,8 @@ export default function CheckOutListPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -152,7 +154,7 @@ export default function CheckOutListPage() {
         progress: true,
         position: "top-right",
         transition: "bounceInDown",
-        icon: '',
+        icon: "",
         sound: true,
       });
     }
@@ -163,15 +165,36 @@ export default function CheckOutListPage() {
   };
 
   const filteredCustomers = data.filter((customer) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      customer.name.toLowerCase().includes(q) ||
-      customer.phone.toLowerCase().includes(q) ||
-      customer.checkInTime.toLowerCase().includes(q) ||
-      customer.checkOutTime.toLowerCase().includes(q) ||
-      customer.token.toString().toLowerCase().includes(q)
-    );
-  });
+  const q = searchQuery.toLowerCase();
+
+  // Text search
+  const matchesSearch =
+    customer.name.toLowerCase().includes(q) ||
+    customer.phone.toLowerCase().includes(q) ||
+    customer.checkInTime.toLowerCase().includes(q) ||
+    customer.checkOutTime.toLowerCase().includes(q) ||
+    customer.token.toString().toLowerCase().includes(q);
+
+  // Date range filter (based on Check Out date, ya Check In chahiye to rawCheckIn use karo)
+  let matchesDate = true;
+  if (startDate || endDate) {
+    const checkoutDate = new Date(customer.rawCheckOut);
+    checkoutDate.setHours(0, 0, 0, 0); // Time part hatao for accurate comparison
+
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      if (checkoutDate < start) matchesDate = false;
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // End of day
+      if (checkoutDate > end) matchesDate = false;
+    }
+  }
+
+  return matchesSearch && matchesDate;
+});
 
   if (loading) {
     return (
@@ -210,6 +233,42 @@ export default function CheckOutListPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3.5 bg-white rounded-full text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-gray-200"
           />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 items-end -translate-y-2 mx-6">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          {(startDate || endDate) && (
+            <button
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+              }}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm"
+            >
+              Clear
+            </button>
+          )}
         </div>
 
         <div className="flex gap-3 w-full sm:w-auto">

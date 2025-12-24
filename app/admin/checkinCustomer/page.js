@@ -222,6 +222,7 @@ export default function CheckInForm() {
                 value={formData.passengerMobile}
                 onChange={(e) => handleInputChange('passengerMobile', e.target.value)}
                 placeholder="Enter mobile number"
+                maxLength={10}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -250,6 +251,7 @@ export default function CheckInForm() {
                 value={formData.pnrNumber}
                 onChange={(e) => handleInputChange('pnrNumber', e.target.value)}
                 placeholder="Enter PNR"
+                maxLength={10}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -262,6 +264,7 @@ export default function CheckInForm() {
                 value={formData.aadharNumber}
                 onChange={(e) => handleInputChange('aadharNumber', e.target.value)}
                 placeholder="Enter Aadhar (12 digits)"
+                maxLength={12}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>

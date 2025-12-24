@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
+import Link from "next/link";
 
 const formatDateTime = (date) => {
   const d = new Date(date);
@@ -26,6 +27,8 @@ export default function CheckInListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // asc | desc
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -68,22 +71,44 @@ export default function CheckInListPage() {
   };
 
   const filteredCustomers = data
-    .filter((customer) => customer.status === "checkedIn")
-    .filter((customer) => {
-      const q = searchQuery.toLowerCase();
-      return (
-        customer.name.toLowerCase().includes(q) ||
-        customer.phone.toLowerCase().includes(q) ||
-        customer.pnr.toLowerCase().includes(q) ||
-        customer.adhara.toLowerCase().includes(q) ||
-        customer.checkIn.toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.checkIn);
-      const dateB = new Date(b.checkIn);
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    });
+  .filter((customer) => customer.status === "checkedIn")
+  .filter((customer) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      customer.name.toLowerCase().includes(q) ||
+      customer.phone.toLowerCase().includes(q) ||
+      customer.pnr.toLowerCase().includes(q) ||
+      customer.adhara.toLowerCase().includes(q) ||
+      customer.checkIn.toLowerCase().includes(q);
+
+    // Date range filter on check-in date
+    let matchesDate = true;
+    if (startDate || endDate) {
+      // checkIn format: MM/DD/YYYY HH:MM:SS → parse karo
+      const [datePart] = customer.checkIn.split(" ");
+      const [month, day, year] = datePart.split("/");
+      const checkInDate = new Date(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+      checkInDate.setHours(0, 0, 0, 0);
+
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        if (checkInDate < start) matchesDate = false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        if (checkInDate > end) matchesDate = false;
+      }
+    }
+
+    return matchesSearch && matchesDate;
+  })
+  .sort((a, b) => {
+    const dateA = new Date(a.checkIn);
+    const dateB = new Date(b.checkIn);
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
 
   const totalCustomers = data.length;
   const checkInCustomers = data.filter((c) => c.status === "checkedIn").length;
@@ -92,16 +117,18 @@ export default function CheckInListPage() {
   ).length;
 
   const statsData = [
-    { title: "Total Customers", value: totalCustomers.toString(), icon: Users },
+    { title: "Total Customers", value: totalCustomers.toString(), icon: Users, link: "/admin/dashboard" },
     {
       title: "Check In Customers",
       value: checkInCustomers.toString(),
       icon: UserPlus,
+      link: "/admin/checkin-reports"
     },
     {
       title: "Check Out Customers",
       value: checkOutCustomers.toString(),
       icon: UserMinus,
+      link: "/admin/checkout-reports"
     },
   ];
 
@@ -141,7 +168,8 @@ export default function CheckInListPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 p-4 sm:p-8 print:p-0">
       {/* Top Filter Bar */}
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 print:hidden">
+      <div className="mb-6 flex flex-col lg:flex-row items-start lg:items-center gap-4 print:hidden flex-wrap">
+        {/* Search Bar */}
         <div className="relative w-full sm:max-w-md">
           <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
@@ -153,6 +181,44 @@ export default function CheckInListPage() {
           />
         </div>
 
+        {/* Date Range Filter */}
+        <div className="flex flex-col sm:flex-row gap-3 items-end w-full sm:w-auto -translate-y-2">
+          <div className="flex-1 sm:flex-initial">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          <div className="flex-1 sm:flex-initial">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          {(startDate || endDate) && (
+            <button
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+              }}
+              className="px-5 py-2.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Buttons */}
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
           <button
             onClick={() => {
@@ -191,10 +257,7 @@ export default function CheckInListPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print:hidden">
         {statsData.map((card, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-3xl p-6 shadow-xl cursor-pointer transition-all duration-150 ease-in hover:shadow-2xl hover:scale-105 border border-gray-200"
-          >
+          <Link href={card?.link} key={index} className="bg-white rounded-3xl p-6 shadow-xl cursor-pointer transition-all duration-150 ease-in hover:shadow-2xl hover:scale-105 border border-gray-200">
             <div className="flex items-center gap-5">
               <div className="bg-linear-to-br from-orange-400 to-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
                 <card.icon className="w-8 h-8 text-white" />
@@ -208,7 +271,7 @@ export default function CheckInListPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

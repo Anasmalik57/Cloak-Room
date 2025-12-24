@@ -446,6 +446,7 @@ export default function CheckOutForm() {
                 }
                 placeholder="Enter mobile number"
                 readOnly={isPopulated}
+                maxLength={10}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
@@ -463,6 +464,7 @@ export default function CheckOutForm() {
                 onChange={(e) => handleInputChange("pnrNumber", e.target.value)}
                 placeholder="Enter PNR"
                 readOnly={isPopulated}
+                maxLength={10}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 rounded-xl text-white text-sm sm:text-base placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all border border-white/10"
               />
             </div>
